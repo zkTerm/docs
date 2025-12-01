@@ -7,6 +7,8 @@ description: 'Passwordless authentication with social login and STARK proofs'
 
 zkAuth provides passwordless authentication using social login (Google, GitHub, X) with STARK proofs on Starknet for verification. No passwords, no seed phrases - just seamless Web3 authentication.
 
+**New in zkTerm Explorer:** All authenticated users can be explored in the zkTerm Explorer, a fully decentralized interface hosted on IPFS via Crust Network. Browse profiles, wallets, transactions, and activity - all powered by zkAuth.
+
 <Note>
   zkAuth is powered by Web3Auth for key management and uses Cairo STARK proofs for quantum-resistant on-chain verification.
 </Note>
@@ -294,9 +296,63 @@ STARK proof revoked.
   </Card>
 </CardGroup>
 
+## zkTerm Explorer Integration
+
+zkAuth powers the **zkTerm Explorer** - a fully decentralized interface for exploring zkTerm user data:
+
+### Features
+
+<CardGroup cols={2}>
+  <Card title="User Profiles" icon="user">
+    View zkID, profile pictures, and social connections
+  </Card>
+  <Card title="Wallet Explorer" icon="wallet">
+    Browse Starknet and Solana wallets with real-time balances
+  </Card>
+  <Card title="Transaction History" icon="clock-rotate-left">
+    See all zkID verifications, file uploads, and compressions
+  </Card>
+  <Card title="Activity Feed" icon="chart-line">
+    Live feed of zkTerm operations across the network
+  </Card>
+</CardGroup>
+
+### Access Explorer
+
+```bash
+# Visit the Explorer
+https://zkterm.io/explorer
+```
+
+**Decentralization:**
+- Hosted on IPFS via Crust Network
+- No servers, no downtime
+- Unstoppable interface
+- All data fetched from blockchain and IPFS
+
+### Privacy Considerations
+
+<Warning>
+  While zkAuth preserves privacy during authentication, the Explorer displays **public** on-chain data (wallet addresses, transaction hashes, zkID DIDs). Private data (passwords, files, proof inputs) remain encrypted and invisible.
+</Warning>
+
+**What's Public:**
+- zkID DIDs (`did:zk:xxx`)
+- Wallet addresses (Starknet, Solana)
+- Transaction hashes and timestamps
+- Compressed token counts
+- IPFS CIDs (files are encrypted)
+
+**What's Private:**
+- Passwords and private keys
+- File contents (AES-256-GCM encrypted)
+- zkSNARK proof inputs
+- Email addresses (unless user chooses to share)
+
 ## Coming Soon
 
 - **Apple Sign-In**: iOS-native authentication
 - **Discord**: Gaming and community integration
 - **Email OTP**: Passwordless email verification
 - **Biometric**: Face ID and fingerprint support
+- **Explorer Analytics**: Charts and statistics for zkTerm usage

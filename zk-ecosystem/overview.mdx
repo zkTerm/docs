@@ -5,7 +5,7 @@ description: 'Complete suite of zero-knowledge tools for privacy-preserving appl
 
 ## The zkTerm Ecosystem
 
-zkTerm provides a unified interface to multiple ZK technologies, eliminating the need to learn different tools and frameworks for each ZK use case.
+zkTerm provides five core technologies plus a decentralized explorer:
 
 <Frame>
   <img src="/images/zk-ecosystem.png" alt="ZK Ecosystem Overview" />
@@ -142,6 +142,23 @@ zkauth login github          # Login with GitHub
 zkauth status                # Check auth status
 ```
 
+## zkTerm Explorer
+
+<Card title="zkTerm Explorer Documentation" icon="compass" href="/zk-ecosystem/explorer">
+  Explore user data on zkTerm
+</Card>
+
+**Key Features:**
+- View all user data on zkTerm
+- Search and filter by user ID, transaction history, and more
+- Privacy-preserving data access
+
+```bash
+zk explorer search <query>   # Search for user data
+zk explorer view <user_id>  # View specific user data
+zk explorer stats           # View ecosystem statistics
+```
+
 ## Terminal Access
 
 All ecosystem components are accessible through the zkTerm terminal:
@@ -160,3 +177,4 @@ All ecosystem components are accessible through the zkTerm terminal:
 | `POST /api/zk-toolkit/*` | Toolkit primitives |
 | `POST /api/zk-storage/*` | Storage operations |
 | `POST /api/zkauth/*` | Authentication |
+| `POST /api/explorer/*` | Explorer operations |
