@@ -1,0 +1,288 @@
+---
+title: zkToolkit
+description: 'Complete zero-knowledge cryptographic primitives library'
+---
+
+## Overview
+
+zkToolkit (`@zkterm/zktoolkit`) provides 10 cryptographic modules for building privacy-preserving applications. All primitives are optimized for ZK circuits.
+
+<Info>
+  Version 0.2.0 - All 10 modules are now complete and production-ready.
+</Info>
+
+## Module Summary
+
+| Module | Functions | Description |
+|--------|-----------|-------------|
+| **hash** | `poseidon`, `pedersen`, `mimc` | ZK-friendly hash functions |
+| **commit** | `create`, `reveal`, `verify` | Pedersen commitments |
+| **merkle** | `create`, `proof`, `verify` | Merkle trees and proofs |
+| **range** | `prove`, `verify` | Range proofs |
+| **sign** | `keypair`, `sign`, `verify` | EdDSA signatures |
+| **nullifier** | `create`, `verify` | Double-spend prevention |
+| **field** | `add`, `sub`, `mul`, `div`, `inv`, `pow`, `sqrt` | BN254 field arithmetic |
+| **ec** | `add`, `mul`, `base`, `isOnCurve` | Baby JubJub curve |
+| **shamir** | `split`, `combine` | Secret sharing |
+| **proof** | `generate`, `verify`, `export` | Groth16 zkSNARKs |
+
+---
+
+## Hash Functions
+
+ZK-optimized hash functions with low circuit constraints.
+
+```bash
+zk toolkit hash poseidon "hello world"
+zk toolkit hash pedersen "secret"
+zk toolkit hash mimc "data" --key "optional"
+```
+
+| Function | Constraints | Use Case |
+|----------|-------------|----------|
+| Poseidon | ~300 | Most ZK circuits |
+| Pedersen | ~1000 | Commitments (homomorphic) |
+| MiMC | ~500 | Keyed hashing |
+
+**API:**
+```bash
+POST /api/zk-toolkit/hash/poseidon
+{ "input": "hello world" }
+```
+
+---
+
+## Commitments
+
+Hide values and reveal them later with proof.
+
+```bash
+zk toolkit commit create 100 --secret "my_secret"
+zk toolkit commit reveal <commitment> 100 --secret "my_secret"
+zk toolkit commit verify <commitment> 100 <salt>
+```
+
+**Properties:**
+- **Hiding**: Commitment reveals nothing about the value
+- **Binding**: Cannot open to a different value
+
+**Use Cases:** Sealed-bid auctions, voting, commit-reveal randomness
+
+---
+
+## Merkle Trees
+
+Build trees and generate inclusion proofs.
+
+```bash
+zk toolkit merkle create "leaf1" "leaf2" "leaf3"
+zk toolkit merkle proof <root> <leaf> <index>
+zk toolkit merkle verify <root> <leaf> <proof>
+```
+
+**Features:**
+- Fixed depth 32
+- Poseidon-based hashing
+- Efficient proof generation
+
+---
+
+## Range Proofs
+
+Prove a value lies within a range without revealing it.
+
+```bash
+zk toolkit range prove 42 --min 0 --max 100
+zk toolkit range verify <proof>
+```
+
+**Use Cases:** Age verification, credit score ranges, balance thresholds
+
+---
+
+## Signatures
+
+EdDSA signatures on the Baby JubJub curve.
+
+```bash
+zk toolkit sign keypair
+zk toolkit sign sign <message> --privateKey <key>
+zk toolkit sign verify <message> <signature> --publicKey <key>
+```
+
+**Curve:** Baby JubJub (ZK-circuit friendly)
+
+---
+
+## Nullifiers
+
+Prevent double-spending in privacy protocols.
+
+```bash
+zk toolkit nullifier create <secret> <nonce>
+zk toolkit nullifier verify <nullifier> <secret> <nonce>
+```
+
+**Use Cases:** Privacy coins, anonymous voting, one-time credentials
+
+---
+
+## Field Arithmetic
+
+Finite field operations modulo BN254 prime.
+
+```bash
+zk field add 5 7           # 12
+zk field sub 10 3          # 7
+zk field mul 6 7           # 42
+zk field div 42 7          # 6
+zk field inv 5             # Modular inverse
+zk field pow 2 256         # 2^256 mod p
+zk field sqrt 4            # Modular square root
+zk field neg 5             # -5 mod p
+zk field random            # Random field element
+zk field prime             # Show BN254 prime
+```
+
+**Prime:**
+```
+p = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+```
+
+**API:**
+```bash
+POST /api/zk-toolkit/field/add
+{ "a": "5", "b": "7" }
+```
+
+---
+
+## Elliptic Curves
+
+Baby JubJub twisted Edwards curve operations.
+
+```bash
+zk ec base                      # Generator point G
+zk ec identity                  # Identity point (0, 1)
+zk ec add <x1,y1> <x2,y2>      # Point addition
+zk ec double <x,y>              # Point doubling
+zk ec mul <x,y> <scalar>        # Scalar multiplication
+zk ec mulbase <scalar>          # s * G
+zk ec neg <x,y>                 # Point negation
+zk ec isoncurve <x,y>           # Verify point on curve
+zk ec params                    # Show curve parameters
+zk ec random                    # Random scalar
+```
+
+**Curve Parameters:**
+```
+a = 168700
+d = 168696
+Equation: a*x² + y² = 1 + d*x²*y²
+```
+
+**API:**
+```bash
+POST /api/zk-toolkit/ec/mulbase
+{ "scalar": "12345" }
+```
+
+---
+
+## Shamir Secret Sharing
+
+Split secrets into threshold shares.
+
+```bash
+zk shamir split 42 --threshold 3 --shares 5
+zk shamir combine <share1> <share2> <share3>
+zk shamir random
+```
+
+**Example:**
+```bash
+# Split secret 42 into 5 shares, need 3 to reconstruct
+> zk shamir split 42 3 5
+Share 1: 1:1234567890
+Share 2: 2:2345678901
+Share 3: 3:3456789012
+Share 4: 4:4567890123
+Share 5: 5:5678901234
+
+# Combine any 3 shares
+> zk shamir combine 1:1234567890,2:2345678901,3:3456789012
+Secret: 42
+```
+
+**Use Cases:** Multi-party key management, distributed custody, threshold signatures
+
+---
+
+## Groth16 Proofs
+
+Generate and verify zkSNARK proofs.
+
+```bash
+zk proof generate --inputs "a=5,b=7"
+zk proof verify <proof_json>
+zk proof circuits                    # List circuits
+zk proof info <circuit_name>         # Circuit details
+zk proof export solidity             # Export verifier
+zk proof export calldata <proof>     # Export calldata
+```
+
+**Available Circuits:**
+| Circuit | Constraints | Inputs |
+|---------|-------------|--------|
+| default | 1 | 1 public, 1 private |
+| poseidon | 216 | 1 public, 2 private |
+| merkle | 4320 | 1 public, 33 private |
+| eddsa | 9000 | 1 public, 4 private |
+
+**API:**
+```bash
+POST /api/zk-toolkit/proof/generate
+{ "inputs": { "a": "5", "b": "7" } }
+```
+
+---
+
+## Installation
+
+```bash
+npm install @zkterm/zktoolkit
+```
+
+## Usage
+
+```typescript
+import { hash, field, ec, shamir, proof } from '@zkterm/zktoolkit';
+
+// Hash
+const h = await hash.poseidon("hello");
+
+// Field arithmetic
+const sum = field.add(5n, 7n);
+
+// EC operations
+const point = ec.mulBase(12345n);
+
+// Secret sharing
+const shares = shamir.split(42n, 3, 5);
+
+// Generate proof
+const p = await proof.generate({ a: 5, b: 7 });
+```
+
+## Why ZK-Friendly Primitives?
+
+Traditional cryptographic functions are inefficient in ZK circuits:
+
+| Function | ZK Constraints |
+|----------|----------------|
+| SHA-256 | ~25,000 |
+| Poseidon | ~300 |
+| Pedersen | ~1,000 |
+| MiMC | ~500 |
+
+zkToolkit uses primitives designed for algebraic operations native to ZK circuits, making proofs 10-100x more efficient.

@@ -1,0 +1,156 @@
+
+---
+title: 'FAQ'
+description: 'Frequently asked questions about zkTerm'
+---
+
+## General
+
+<AccordionGroup>
+  <Accordion title="What is zkTerm?">
+    zkTerm is a universal zero-knowledge terminal that unifies the entire ZK ecosystem. It provides cryptographic primitives, identity solutions, file encryption, and blockchain compression in one CLI.
+  </Accordion>
+
+  <Accordion title="Is zkTerm free to use?">
+    Yes! zkTerm is free to use. You only pay blockchain gas fees for on-chain operations (Solana/Starknet transactions).
+  </Accordion>
+
+  <Accordion title="Which blockchains does zkTerm support?">
+    - Solana (mainnet & devnet)
+    - Starknet (mainnet & sepolia)
+    - Ethereum (coming soon)
+  </Accordion>
+
+  <Accordion title="Do I need to install anything?">
+    No installation required! Access the terminal at [zkterm.io/terminal](https://zkterm.io/terminal). For API integration, install npm packages.
+  </Accordion>
+</AccordionGroup>
+
+## zkID
+
+<AccordionGroup>
+  <Accordion title="What is a zkID?">
+    zkID is a privacy-preserving universal identity with format `did:zk:[12 chars]`. It uses Ed25519 cryptography and is verified on both Solana and Starknet.
+  </Accordion>
+
+  <Accordion title="Can I recover my zkID if I forget my password?">
+    No. zkID uses client-side encryption with no password recovery. Keep your credentials safe!
+  </Accordion>
+
+  <Accordion title="How is zkID different from wallet addresses?">
+    zkID is chain-agnostic and privacy-focused. It works across multiple blockchains without exposing transaction history.
+  </Accordion>
+
+  <Accordion title="Can I use one zkID across multiple applications?">
+    Yes! zkID is designed for universal identity across all ZK-compatible applications.
+  </Accordion>
+</AccordionGroup>
+
+## zkStorage
+
+<AccordionGroup>
+  <Accordion title="How secure is zkStorage?">
+    Files are encrypted client-side with AES-256-GCM. Password verification uses Groth16 zkSNARKs. Files are stored on IPFS for decentralization.
+  </Accordion>
+
+  <Accordion title="What's the maximum file size?">
+    Current limit is 100MB per file due to IPFS gateway constraints.
+  </Accordion>
+
+  <Accordion title="Can I delete uploaded files?">
+    Files on IPFS are permanent. You can unpin them from Pinata, but they may exist on other IPFS nodes.
+  </Accordion>
+
+  <Accordion title="How do I share encrypted files?">
+    Use `zk storage share <cid>` to generate a shareable link with embedded password (encrypted).
+  </Accordion>
+</AccordionGroup>
+
+## zkCompression
+
+<AccordionGroup>
+  <Accordion title="How much can I save with compression?">
+    Up to 1000x reduction in storage costs. Creating a compressed token account costs ~120k lamports vs ~2M lamports for standard SPL.
+  </Accordion>
+
+  <Accordion title="Are compressed tokens compatible with standard wallets?">
+    Compressed tokens require Light Protocol-compatible wallets. Most standard wallets won't show compressed balances.
+  </Accordion>
+
+  <Accordion title="Can I decompress tokens back to standard SPL?">
+    Yes! Use `decompress <mint> <amount>` to convert back.
+  </Accordion>
+
+  <Accordion title="Does compression affect token functionality?">
+    No. Compressed tokens work exactly like standard SPL tokens but with massively reduced storage costs.
+  </Accordion>
+</AccordionGroup>
+
+## zkToolkit
+
+<AccordionGroup>
+  <Accordion title="What cryptographic primitives are available?">
+    10 modules: hash, commit, merkle, range, sign, nullifier, field, ec, shamir, proof. See [zkToolkit docs](/zk-ecosystem/zktoolkit).
+  </Accordion>
+
+  <Accordion title="Can I use zkToolkit in production?">
+    Yes! All primitives use battle-tested libraries (circomlibjs, snarkjs) and are production-ready.
+  </Accordion>
+
+  <Accordion title="How fast is proof generation?">
+    Groth16 proofs take ~5-10 seconds. STARK proofs take ~2-5 seconds. Ed25519 signatures are near-instant.
+  </Accordion>
+
+  <Accordion title="Can I create custom ZK circuits?">
+    Yes! You can write custom circom circuits and use zkTerm's proof generation infrastructure.
+  </Accordion>
+</AccordionGroup>
+
+## Technical
+
+<AccordionGroup>
+  <Accordion title="What ZK proof systems does zkTerm use?">
+    - Groth16 for zkStorage password verification
+    - STARK for zkID on Starknet
+    - Ed25519 for digital signatures
+  </Accordion>
+
+  <Accordion title="How are proofs verified on-chain?">
+    Solana: Direct Ed25519 signature verification
+    Starknet: Cairo smart contract verifies STARK proofs
+  </Accordion>
+
+  <Accordion title="Can I audit the smart contracts?">
+    Yes! Contracts are open source:
+    - Starknet: `contracts/starknet/src/lib.cairo`
+    - GitHub: github.com/zkterm
+  </Accordion>
+
+  <Accordion title="What's the tech stack?">
+    - Frontend: React, TypeScript, Vite, XTerm
+    - Backend: Express.js, PostgreSQL
+    - Blockchain: Solana, Starknet
+    - ZK: circomlibjs, snarkjs, starknet.js
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+See [Troubleshooting Guide](/resources/troubleshooting) for common issues and solutions.
+
+## Support
+
+<CardGroup cols={2}>
+  <Card title="Discord" icon="discord" href="https://discord.gg/zkterm">
+    Join our community
+  </Card>
+  <Card title="Twitter" icon="x-twitter" href="https://x.com/zkterm">
+    Follow for updates
+  </Card>
+  <Card title="GitHub" icon="github" href="https://github.com/zkterm">
+    Report issues
+  </Card>
+  <Card title="Docs" icon="book" href="/introduction">
+    Read documentation
+  </Card>
+</CardGroup>

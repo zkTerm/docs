@@ -1,0 +1,146 @@
+
+---
+title: 'File Encryption Guide'
+description: 'Learn how to securely encrypt and share files with zkStorage'
+---
+
+## Overview
+
+zkStorage provides client-side AES-256-GCM encryption with zkSNARK password verification and IPFS storage.
+
+## Quick Start
+
+### 1. Upload Encrypted File
+
+```bash
+zk storage upload document.pdf
+```
+
+Enter password when prompted. You'll receive:
+- IPFS CID (content identifier)
+- SHA-256 checksum
+- ZK proof for password verification
+
+### 2. Download File
+
+```bash
+zk storage download QmXyz123...
+```
+
+Enter the same password to decrypt.
+
+## Using the API
+
+### TypeScript
+
+```typescript
+import { zkStorage } from '@zkterm/zkstorage';
+
+// Upload
+const file = new File(['secret data'], 'secret.txt');
+const result = await zkStorage.upload(file, 'password123');
+
+console.log(result.cid); // QmXyz123...
+console.log(result.checksum); // sha256:abc...
+
+// Download
+const decrypted = await zkStorage.download(result.cid, 'password123');
+console.log(decrypted); // File object
+```
+
+### REST API
+
+```bash
+# Upload
+curl -X POST https://zkterm.io/api/storage/upload \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@secret.pdf" \
+  -F "password=mypassword"
+
+# Download
+curl -X POST https://zkterm.io/api/storage/download \
+  -H "Content-Type: application/json" \
+  -d '{"cid": "QmXyz123...", "password": "mypassword"}'
+```
+
+## How It Works
+
+```
+┌──────────────┐
+│ Original File│
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ AES-256-GCM  │ ◄── Password
+│ Encryption   │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│Generate ZK   │
+│Proof (Groth16)│
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│Upload to IPFS│
+│ (Pinata)     │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│Return CID    │
+└──────────────┘
+```
+
+## Security Features
+
+<AccordionGroup>
+  <Accordion title="Client-Side Encryption">
+    All encryption happens in your browser. Files never leave your device unencrypted.
+  </Accordion>
+  <Accordion title="Zero-Knowledge Proofs">
+    Password verification uses Groth16 zkSNARKs - server never sees your password.
+  </Accordion>
+  <Accordion title="Content Addressing">
+    IPFS ensures file integrity through cryptographic hashing.
+  </Accordion>
+  <Accordion title="Checksum Validation">
+    SHA-256 checksums verify file wasn't corrupted during upload/download.
+  </Accordion>
+</AccordionGroup>
+
+## Sharing Files
+
+### Generate Share Link
+
+```bash
+zk storage share QmXyz123...
+```
+
+You'll get a shareable URL:
+```
+https://zkterm.io/share/abc123...
+```
+
+### Share Without Password
+
+Password is embedded in the share token (encrypted). Recipients just click the link.
+
+## Best Practices
+
+- Use strong, unique passwords
+- Keep backup of CIDs for important files
+- Verify checksums after download
+- Don't share passwords separately from share links
+
+## Limitations
+
+- Max file size: 100MB (IPFS limitation)
+- Proof generation takes ~5-10 seconds
+- IPFS retrieval can be slow during high traffic
+
+## API Reference
+
+See [zkStorage API Reference](/api-reference/zkstorage) for complete documentation.

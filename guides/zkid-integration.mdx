@@ -1,0 +1,134 @@
+
+---
+title: 'zkID Integration Guide'
+description: 'Complete guide to integrate zkID into your application'
+---
+
+## Overview
+
+This guide walks you through integrating zkID privacy-preserving identity into your application.
+
+## Installation
+
+Install the zkID package:
+
+```bash
+npm install @zkterm/zkid
+```
+
+## Basic Integration
+
+### 1. Create Identity
+
+```typescript
+import { createZkIdIdentity } from '@zkterm/zkid';
+
+// Create new zkID
+const identity = await createZkIdIdentity('secure_password_123');
+
+console.log(identity.zkId); // did:zk:abc123xyz789
+console.log(identity.publicKey); // 0x04abc...
+```
+
+### 2. Sign Messages
+
+```typescript
+import { signMessage } from '@zkterm/zkid';
+
+const message = "Hello zkTerm";
+const signature = await signMessage(identity.privateKey, message);
+
+console.log(signature); // Ed25519 signature
+```
+
+### 3. Verify Signatures
+
+```typescript
+import { verifySignature } from '@zkterm/zkid';
+
+const isValid = verifySignature(
+  message,
+  signature,
+  identity.publicKey
+);
+
+console.log(isValid); // true
+```
+
+## On-Chain Verification
+
+### Solana
+
+```typescript
+import { verifySolana } from '@zkterm/zkid';
+
+const result = await verifySolana({
+  zkId: identity.zkId,
+  publicKey: identity.publicKey,
+  signature: signature
+});
+
+console.log(result.txHash); // Transaction hash
+```
+
+### Starknet
+
+```typescript
+import { verifyStarknet } from '@zkterm/zkid';
+
+const result = await verifyStarknet({
+  zkId: identity.zkId,
+  publicKey: identity.publicKey,
+  signature: signature
+});
+
+console.log(result.txHash); // Transaction hash
+```
+
+## Advanced Usage
+
+### Encrypt Data
+
+```typescript
+import { encrypt } from '@zkterm/zkid';
+
+const encrypted = await encrypt(
+  'sensitive data',
+  identity.publicKey
+);
+```
+
+### Decrypt Data
+
+```typescript
+import { decrypt } from '@zkterm/zkid';
+
+const decrypted = await decrypt(
+  encrypted,
+  identity.privateKey
+);
+```
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Key Management">
+    - Never expose private keys in frontend code
+    - Store keys securely (encrypted in database)
+    - Use environment variables for sensitive data
+  </Accordion>
+  <Accordion title="Password Security">
+    - Enforce strong password requirements
+    - Use bcrypt for password hashing
+    - Implement rate limiting on authentication
+  </Accordion>
+  <Accordion title="Error Handling">
+    - Always validate signatures before processing
+    - Handle blockchain network errors gracefully
+    - Implement retry logic for failed verifications
+  </Accordion>
+</AccordionGroup>
+
+## API Reference
+
+See [zkID API Reference](/api-reference/zkid) for complete documentation.

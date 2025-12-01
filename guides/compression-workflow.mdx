@@ -1,0 +1,125 @@
+
+---
+title: 'Compression Workflow'
+description: 'Complete guide to using zkCompression for Solana token optimization'
+---
+
+## Overview
+
+zkCompression reduces Solana token storage costs by 1000x using Light Protocol's state compression technology.
+
+## Prerequisites
+
+- Solana wallet with SOL for gas fees
+- SPL tokens to compress
+- zkTerm account (create at [zkterm.io/terminal](https://zkterm.io/terminal))
+
+## Workflow Steps
+
+### 1. Check Current Balance
+
+View your SPL tokens:
+
+```bash
+zk tokens
+```
+
+Output shows both regular and compressed tokens:
+```
+Token Portfolio
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token      Balance    Type        Mint
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+USDC       1,234.56   Regular     EPjFWdd5...
+SOL        10.5       Regular     So11111...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 2. Compress Tokens
+
+Compress your tokens to save on storage costs:
+
+```bash
+compress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 1000
+```
+
+This compresses 1000 USDC tokens.
+
+### 3. Verify Compression
+
+Check compressed balance:
+
+```bash
+zk tokens
+```
+
+You'll now see:
+```
+USDC       234.56     Regular     EPjFWdd5...
+USDC       1000.00    [C]         EPjFWdd5...
+```
+
+`[C]` indicates compressed tokens.
+
+### 4. Transfer Compressed Tokens
+
+Compressed tokens can be transferred like regular tokens but cost 1000x less:
+
+```bash
+transfer-compressed EPjFWdd5... 9pQRst4... 500
+```
+
+### 5. Decompress When Needed
+
+Convert back to regular SPL tokens:
+
+```bash
+decompress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 500
+```
+
+## Cost Comparison
+
+| Operation | Standard SPL | Compressed | Savings |
+|-----------|--------------|------------|---------|
+| Create Token Account | ~2,000,000 lamports | ~120,000 lamports | **94%** |
+| Mint Tokens | ~2,000,000 lamports | ~120,000 lamports | **94%** |
+| Transfer | ~5,000 lamports | ~5,000 lamports | Same |
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="High-Volume Mints" icon="coins">
+    Mint thousands of tokens at 1/16th the cost
+  </Card>
+  <Card title="NFT Collections" icon="images">
+    Create large NFT collections efficiently
+  </Card>
+  <Card title="Token Airdrops" icon="parachute-box">
+    Distribute tokens to thousands of users cheaply
+  </Card>
+  <Card title="DeFi Protocols" icon="chart-line">
+    Reduce operational costs for token programs
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+- Keep some regular SOL for gas fees
+- Test with small amounts first
+- Monitor network congestion
+- Batch operations when possible
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Compression failed">
+    - Ensure sufficient SOL balance for gas
+    - Check if token account exists
+    - Verify mint address is correct
+  </Accordion>
+  <Accordion title="Balance not updating">
+    - Wait for transaction confirmation (~30s)
+    - Check Solana network status
+    - Verify transaction on explorer
+  </Accordion>
+</AccordionGroup>

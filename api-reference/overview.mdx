@@ -1,0 +1,102 @@
+---
+title: API Overview
+description: 'Complete REST API reference for zkTerm'
+---
+
+## Base URL
+
+All API endpoints are available at:
+
+```
+https://zkterm.io/api/
+```
+
+## Authentication
+
+Most endpoints require authentication via session cookie or zkID verification.
+
+```bash
+# Login first to get session
+POST /api/auth/login
+```
+
+## Response Format
+
+All responses follow this format:
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "error": null
+}
+```
+
+Error responses:
+
+```json
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message"
+  }
+}
+```
+
+## Rate Limits
+
+| Endpoint Group | Limit |
+|----------------|-------|
+| zkID | 100/min |
+| zkCompression | 50/min |
+| zkToolkit | 200/min |
+| zkStorage | 30/min |
+| zkAuth | 20/min |
+
+## API Modules
+
+<CardGroup cols={2}>
+  <Card title="zkID API" icon="fingerprint" href="/api-reference/zkid">
+    Identity creation and verification
+  </Card>
+  <Card title="zkCompression API" icon="compress" href="/api-reference/zkcompression">
+    Token compression operations
+  </Card>
+  <Card title="zkToolkit API" icon="toolbox" href="/api-reference/zktoolkit">
+    Cryptographic primitives
+  </Card>
+  <Card title="zkStorage API" icon="hard-drive" href="/api-reference/zkstorage">
+    Encrypted file storage
+  </Card>
+  <Card title="zkAuth API" icon="key" href="/api-reference/zkauth">
+    Passwordless authentication
+  </Card>
+</CardGroup>
+
+## Quick Examples
+
+### Hash with Poseidon
+
+```bash
+curl -X POST https://zkterm.io/api/zk-toolkit/hash/poseidon \
+  -H "Content-Type: application/json" \
+  -d '{"input": "hello world"}'
+```
+
+### Field Addition
+
+```bash
+curl -X POST https://zkterm.io/api/zk-toolkit/field/add \
+  -H "Content-Type: application/json" \
+  -d '{"a": "5", "b": "7"}'
+```
+
+### EC Scalar Multiplication
+
+```bash
+curl -X POST https://zkterm.io/api/zk-toolkit/ec/mulbase \
+  -H "Content-Type: application/json" \
+  -d '{"scalar": "12345"}'
+```

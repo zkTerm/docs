@@ -1,0 +1,319 @@
+
+---
+title: Getting Started
+description: 'Step-by-step guide to start building with zkTerm'
+---
+
+## Installation
+
+zkTerm is a web-based terminal - no installation required! Simply visit:
+
+```
+https://zkterm.io/terminal
+```
+
+For API integration, install the TypeScript packages:
+
+```bash
+npm install @zkterm/zkid @zkterm/zktoolkit @zkterm/zkstorage
+```
+
+## Your First Commands
+
+### 1. Create zkID Identity
+
+```bash
+zkid create
+```
+
+You'll be prompted for:
+- **Username**: Your unique identifier
+- **Password**: Used for encryption (stored as bcrypt hash)
+
+Output:
+```
+Creating zkID...
+Your zkID: did:zk:a7Bk9mX2pQ4r
+Public Key: 0x04abc123...
+```
+
+### 2. Verify Identity On-Chain
+
+```bash
+zkid verify
+```
+
+This generates an Ed25519 proof and verifies it on both chains:
+- ✓ Solana Mainnet
+- ✓ Starknet Sepolia
+
+### 3. Check Status
+
+```bash
+zkid status
+```
+
+View your identity details:
+```
+zkID: did:zk:a7Bk9mX2pQ4r
+Status: Verified
+Chains:
+  - Solana Mainnet: ✓ (tx: 5abc...)
+  - Starknet Sepolia: ✓ (tx: 0x123...)
+```
+
+## Using zkToolkit
+
+### Hash Data
+
+```bash
+zk toolkit hash poseidon "hello world"
+```
+
+Output:
+```
+Hash: 0x1234567890abcdef...
+Algorithm: Poseidon
+Constraints: ~300 (ZK-optimized)
+```
+
+### Field Arithmetic
+
+```bash
+zk field add 5 7
+```
+
+Output:
+```
+Result: 12
+Field: BN254
+Prime: 21888242871839275222246405745257275088548364400416034343698204186575808495617
+```
+
+### Generate Groth16 Proof
+
+```bash
+zk proof generate --inputs "a=5,b=7"
+```
+
+Output:
+```
+Generating proof...
+Proof generated successfully!
+Protocol: Groth16
+Public inputs: [12]
+Constraints: 1
+```
+
+## Using zkStorage
+
+### Upload Encrypted File
+
+```bash
+zk storage upload document.pdf
+```
+
+Process:
+1. Enter password for encryption
+2. File encrypted with AES-256-GCM
+3. Groth16 proof generated
+4. Uploaded to IPFS via Pinata
+
+Output:
+```
+Encrypting file...
+Generating ZK proof...
+Uploading to IPFS...
+CID: QmXyz123abc456def789
+Checksum: sha256:abc123...
+```
+
+### Download File
+
+```bash
+zk storage download QmXyz123...
+```
+
+Process:
+1. Enter password
+2. Verify ZK proof
+3. Download from IPFS
+4. Decrypt file
+5. Verify checksum
+
+Output:
+```
+Verifying proof...
+Downloading from IPFS...
+Decrypting...
+Saved to: document.pdf
+```
+
+## Using zkCompression
+
+### Compress SPL Tokens
+
+```bash
+compress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 100
+```
+
+This compresses 100 USDC using Light Protocol:
+
+Output:
+```
+Compressing 100 USDC...
+Transaction: 5abc123...
+Compression complete!
+Saved: ~0.002 SOL
+```
+
+### View Portfolio
+
+```bash
+zk tokens
+```
+
+Shows both regular and compressed tokens:
+```
+Token Portfolio
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Token      Balance    Type        Mint
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+USDC       1,234.56   Regular     EPjFWdd5...
+USDC       500.00     [C]         EPjFWdd5...
+SOL        10.5       Regular     So11111...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[C] = Compressed Token
+```
+
+## API Integration
+
+### Initialize Client
+
+```typescript
+import { createZkIdIdentity, generateProof } from '@zkterm/zkid';
+import { zkToolkit } from '@zkterm/zktoolkit';
+import { zkStorage } from '@zkterm/zkstorage';
+
+// Create zkID
+const identity = await createZkIdIdentity('password123');
+console.log(identity.zkId); // did:zk:abc123xyz789
+
+// Use zkToolkit
+const hash = await zkToolkit.hash.poseidon("hello");
+const sum = zkToolkit.field.add(5n, 7n);
+
+// Upload to zkStorage
+const result = await zkStorage.upload(file, 'password');
+console.log(result.cid); // QmXyz123...
+```
+
+### REST API
+
+```bash
+# Create zkID
+curl -X POST https://zkterm.io/api/zkid/create \
+  -H "Content-Type: application/json" \
+  -d '{"username": "alice", "password": "secure"}'
+
+# Hash with Poseidon
+curl -X POST https://zkterm.io/api/zk-toolkit/hash/poseidon \
+  -H "Content-Type: application/json" \
+  -d '{"input": "hello world"}'
+
+# Compress tokens
+curl -X POST https://zkterm.io/api/compress \
+  -H "Content-Type: application/json" \
+  -d '{"mint": "EPjFWdd5...", "amount": 100}'
+```
+
+## Common Workflows
+
+### Workflow 1: Anonymous File Sharing
+
+```bash
+# 1. Create zkID
+zkid create
+
+# 2. Upload encrypted file
+zk storage upload secret.pdf
+
+# 3. Share CID with recipient
+# CID: QmXyz123...
+
+# 4. Recipient downloads
+zk storage download QmXyz123...
+```
+
+### Workflow 2: Privacy Transfers
+
+```bash
+# 1. Check balance
+zk tokens
+
+# 2. Compress tokens for privacy
+compress EPjFWdd5... 1000
+
+# 3. Transfer compressed tokens
+# (recipient gets compressed tokens)
+
+# 4. Decompress when needed
+decompress EPjFWdd5... 500
+```
+
+### Workflow 3: DAO Voting
+
+```bash
+# 1. Create zkID for anonymous identity
+zkid create
+
+# 2. Verify on-chain
+zkid verify
+
+# 3. Generate proof for voting
+zk proof generate --inputs "vote=yes"
+
+# 4. Submit vote (ZK proof proves eligibility)
+```
+
+## Tips & Best Practices
+
+<AccordionGroup>
+  <Accordion title="Password Security">
+    - Use strong passwords for zkID and zkStorage
+    - Never share your password
+    - No password recovery - if lost, files are unrecoverable
+  </Accordion>
+  <Accordion title="Proof Generation">
+    - Proof generation can take 5-10 seconds
+    - Use ZK-optimized primitives (Poseidon vs SHA-256)
+    - Check proof size before on-chain submission
+  </Accordion>
+  <Accordion title="Gas Optimization">
+    - Use zkCompression for frequent transfers
+    - Batch operations when possible
+    - Monitor Solana network congestion
+  </Accordion>
+  <Accordion title="Error Handling">
+    - Check transaction confirmations
+    - Verify proof before submission
+    - Keep backup of important CIDs
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="ZK Ecosystem" icon="shield-check" href="/zk-ecosystem/overview">
+    Explore all ZK technologies
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference">
+    Complete API documentation
+  </Card>
+  <Card title="zkID Guide" icon="fingerprint" href="/zk-ecosystem/zkid">
+    Deep dive into zkID
+  </Card>
+  <Card title="zkToolkit" icon="toolbox" href="/zk-ecosystem/zktoolkit">
+    Learn cryptographic primitives
+  </Card>
+</CardGroup>

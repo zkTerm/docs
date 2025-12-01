@@ -1,0 +1,227 @@
+---
+title: zkID
+description: 'Privacy-preserving universal zero-knowledge identity'
+---
+
+## Overview
+
+zkID is a privacy-preserving universal identity system that generates a `did:zk` decentralized identifier with on-chain verification on both Solana and Starknet.
+
+<Info>
+  zkID uses Ed25519 cryptography for proof generation and supports dual-chain verification for maximum security and decentralization.
+</Info>
+
+## DID Format
+
+```
+did:zk:[12 random alphanumeric characters]
+```
+
+**Example:**
+```
+did:zk:a7Bk9mX2pQ4r
+```
+
+## How It Works
+
+<Steps>
+  <Step title="Create Identity">
+    Generate a new zkID with a username and password. The system creates:
+    - Ed25519 keypair for signing
+    - Unique 12-character DID
+    - Password hash using bcrypt
+  </Step>
+  <Step title="Generate Proof">
+    Client-side proof generation using Ed25519 signatures. The proof demonstrates ownership of the identity without revealing the private key.
+  </Step>
+  <Step title="On-Chain Verification">
+    The proof is verified on-chain via:
+    - Solana Mainnet transaction
+    - Starknet Sepolia Cairo contract (ZkIDProofRegistry)
+  </Step>
+</Steps>
+
+## Terminal Commands
+
+### Create zkID
+
+```bash
+zkid create
+```
+
+Prompts for username and password, then generates your unique `did:zk` identity.
+
+### Verify Identity
+
+```bash
+zkid verify
+```
+
+Generates and verifies an Ed25519 proof of identity ownership.
+
+### Check Status
+
+```bash
+zkid status
+```
+
+Shows your zkID and on-chain verification status on both Solana and Starknet.
+
+### View Profile
+
+```bash
+zkid profile
+```
+
+Displays your complete zkID profile including creation date and verification history.
+
+## API Reference
+
+### Create zkID
+
+<ParamField body="username" type="string" required>
+  Unique username for the identity
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Password for authentication (hashed with bcrypt)
+</ParamField>
+
+```bash
+POST /api/zkid/create
+Content-Type: application/json
+
+{
+  "username": "alice",
+  "password": "secure_password"
+}
+```
+
+**Response:**
+
+```json
+{
+  "did": "did:zk:a7Bk9mX2pQ4r",
+  "publicKey": "0x...",
+  "createdAt": "2025-12-01T10:00:00Z"
+}
+```
+
+### Verify zkID
+
+```bash
+POST /api/zkid/verify
+Content-Type: application/json
+
+{
+  "did": "did:zk:a7Bk9mX2pQ4r",
+  "proof": "0x..."
+}
+```
+
+**Response:**
+
+```json
+{
+  "valid": true,
+  "solana": {
+    "verified": true,
+    "txSignature": "5abc..."
+  },
+  "starknet": {
+    "verified": true,
+    "txHash": "0x123..."
+  }
+}
+```
+
+## On-Chain Architecture
+
+### Solana Verification
+
+zkID proofs are stored on Solana Mainnet using a Program Derived Address (PDA) structure:
+
+```
+PDA = [
+  "zkid",
+  did_bytes,
+  program_id
+]
+```
+
+### Starknet Verification
+
+The `ZkIDProofRegistry` Cairo contract stores zkID proofs on Starknet Sepolia:
+
+```cairo
+#[storage]
+struct Storage {
+    proofs: LegacyMap<felt252, ZkIDProof>,
+    owner: ContractAddress,
+}
+
+struct ZkIDProof {
+    did_hash: felt252,
+    public_key: felt252,
+    timestamp: u64,
+    verified: bool,
+}
+```
+
+## Security Considerations
+
+<Warning>
+  Never share your zkID private key. The proof generation happens entirely client-side.
+</Warning>
+
+**Security Features:**
+- Ed25519 elliptic curve cryptography
+- bcrypt password hashing (12 rounds)
+- Client-side proof generation (private key never leaves device)
+- Dual-chain verification for redundancy
+- STARK proofs for quantum resistance (Starknet)
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="DeFi Authentication" icon="coins">
+    Authenticate to DeFi protocols without revealing wallet addresses
+  </Card>
+  <Card title="DAO Voting" icon="check-to-slot">
+    Prove membership and vote without revealing identity
+  </Card>
+  <Card title="KYC Compliance" icon="id-card">
+    Prove verification status without sharing personal data
+  </Card>
+  <Card title="Cross-Chain Identity" icon="link">
+    Single identity across Solana and Starknet ecosystems
+  </Card>
+</CardGroup>
+
+## Example: Full Flow
+
+```bash
+# 1. Create your zkID
+> zkid create
+Username: alice
+Password: ********
+Creating zkID...
+Your zkID: did:zk:a7Bk9mX2pQ4r
+
+# 2. Verify on-chain
+> zkid verify
+Generating Ed25519 proof...
+Submitting to Solana Mainnet...
+Submitting to Starknet Sepolia...
+Verification complete!
+  Solana: ✓ Verified (tx: 5abc...)
+  Starknet: ✓ Verified (tx: 0x123...)
+
+# 3. Check status
+> zkid status
+zkID: did:zk:a7Bk9mX2pQ4r
+Status: Verified
+Chains:
+  - Solana Mainnet: ✓
+  - Starknet Sepolia: ✓
+```

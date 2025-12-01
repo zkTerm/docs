@@ -1,0 +1,278 @@
+
+---
+title: 'Troubleshooting'
+description: 'Common issues and solutions'
+---
+
+## zkID Issues
+
+### "Failed to create zkID"
+
+**Cause**: Database connection issue or username already exists.
+
+**Solution**:
+1. Check if username is unique
+2. Verify database connection
+3. Try again in a few seconds
+
+### "On-chain verification failed"
+
+**Cause**: Insufficient SOL/ETH balance or network congestion.
+
+**Solution**:
+1. Check wallet balance (need ~0.01 SOL for gas)
+2. Wait for network congestion to clear
+3. Try a different blockchain: `zkid verify --blockchain solana`
+
+### "Proof generation timeout"
+
+**Cause**: Heavy computational load on server.
+
+**Solution**:
+1. Reduce input complexity
+2. Try during off-peak hours
+3. Use local proof generation (advanced)
+
+## zkStorage Issues
+
+### "File upload failed"
+
+**Possible causes**:
+- File too large (>100MB)
+- IPFS gateway timeout
+- Weak password
+
+**Solutions**:
+```bash
+# Check file size
+ls -lh yourfile.pdf
+
+# Use smaller file
+zk storage upload small-file.pdf
+
+# Use stronger password (12+ chars)
+```
+
+### "Decryption failed"
+
+**Cause**: Wrong password or corrupted file.
+
+**Solution**:
+1. Double-check password (case-sensitive)
+2. Verify CID is correct
+3. Check file integrity with checksum
+
+### "IPFS gateway timeout"
+
+**Cause**: IPFS network congestion.
+
+**Solution**:
+```bash
+# Try alternative gateway
+export IPFS_GATEWAY=https://cloudflare-ipfs.com
+zk storage download QmXyz...
+
+# Or wait and retry
+```
+
+## zkCompression Issues
+
+### "Compression failed"
+
+**Cause**: Insufficient SOL balance or invalid mint.
+
+**Solution**:
+```bash
+# Check SOL balance
+zk tokens
+
+# Verify mint address
+compress <correct-mint-address> 100
+
+# Ensure enough SOL (need ~0.005 SOL)
+```
+
+### "Balance not updating"
+
+**Cause**: Transaction not confirmed yet.
+
+**Solution**:
+1. Wait 30-60 seconds for confirmation
+2. Check transaction on Solana Explorer
+3. Run `zk tokens` again
+
+### "Decompression stuck"
+
+**Cause**: Light Protocol RPC timeout.
+
+**Solution**:
+```bash
+# Check transaction status
+# Wait 2-5 minutes
+# Try again if still stuck
+decompress <mint> <amount>
+```
+
+## zkToolkit Issues
+
+### "Hash mismatch"
+
+**Cause**: Different hash algorithm or encoding.
+
+**Solution**:
+```bash
+# Specify algorithm explicitly
+zk toolkit hash poseidon "data"
+
+# Verify input encoding (UTF-8)
+```
+
+### "Proof verification failed"
+
+**Cause**: Invalid proof or public signals.
+
+**Solution**:
+1. Ensure proof format matches circuit
+2. Verify public signals order
+3. Check verification key version
+
+### "Field arithmetic overflow"
+
+**Cause**: Number exceeds BN254 field prime.
+
+**Solution**:
+```bash
+# Use smaller numbers
+zk field add 5 7
+
+# Or use modular arithmetic
+```
+
+## API Integration Issues
+
+### "CORS error"
+
+**Cause**: Frontend making requests without proper credentials.
+
+**Solution**:
+```typescript
+fetch('https://zkterm.io/api/endpoint', {
+  credentials: 'include', // Add this!
+  headers: { 'Content-Type': 'application/json' }
+});
+```
+
+### "401 Unauthorized"
+
+**Cause**: Not logged in or session expired.
+
+**Solution**:
+```typescript
+// Login first
+await fetch('https://zkterm.io/api/login', {
+  method: 'POST',
+  credentials: 'include',
+  body: JSON.stringify({ username, password })
+});
+
+// Then make authenticated request
+```
+
+### "Rate limit exceeded"
+
+**Cause**: Too many requests.
+
+**Solution**:
+1. Implement exponential backoff
+2. Cache responses when possible
+3. Batch requests
+
+## Network Issues
+
+### Solana
+
+**Problem**: "Transaction simulation failed"
+
+**Solutions**:
+- Increase compute budget
+- Wait for lower network congestion
+- Use priority fees
+
+### Starknet
+
+**Problem**: "Signature verification failed"
+
+**Solutions**:
+- Check account deployment status
+- Verify signature format
+- Ensure correct network (mainnet/sepolia)
+
+## Terminal Issues
+
+### "Command not found"
+
+**Cause**: Typo or unavailable command.
+
+**Solution**:
+```bash
+# List all commands
+help
+
+# Check spelling
+zkid create  # not "zkid creat"
+```
+
+### "Terminal not responding"
+
+**Cause**: Browser memory issue.
+
+**Solution**:
+1. Refresh page (Cmd/Ctrl + R)
+2. Clear browser cache
+3. Use incognito mode
+
+## Getting Help
+
+If your issue isn't listed:
+
+1. **Check logs**: Open browser DevTools → Console
+2. **Search Discord**: Often others had same issue
+3. **Ask community**: [discord.gg/zkterm](https://discord.gg/zkterm)
+4. **File bug**: [github.com/zkterm/issues](https://github.com/zkterm/issues)
+
+## Common Error Codes
+
+| Code | Meaning | Solution |
+|------|---------|----------|
+| 400 | Bad Request | Check request parameters |
+| 401 | Unauthorized | Login first |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Verify CID/endpoint exists |
+| 429 | Rate Limited | Wait and retry |
+| 500 | Server Error | Report to team |
+
+## Debugging Tips
+
+<AccordionGroup>
+  <Accordion title="Enable Verbose Logging">
+    ```bash
+    export DEBUG=true
+    zk storage upload file.pdf
+    ```
+  </Accordion>
+  <Accordion title="Check Transaction Details">
+    ```bash
+    # Solana
+    solana confirm <tx-hash> -v
+    
+    # Starknet
+    starknet tx_status --hash <tx-hash>
+    ```
+  </Accordion>
+  <Accordion title="Verify Smart Contract State">
+    ```bash
+    # Check if zkID exists on-chain
+    zkid status
+    ```
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,146 @@
+
+---
+title: 'Zero-Knowledge Proofs'
+description: 'Understanding and using ZK proofs in zkTerm'
+---
+
+## Overview
+
+zkTerm implements multiple ZK proof systems for different use cases:
+
+- **Groth16**: File encryption password verification
+- **STARK**: Identity verification on Starknet
+- **Ed25519**: Digital signatures for zkID
+
+## Groth16 Proofs
+
+Used for zkStorage password verification.
+
+### Generate Proof
+
+```bash
+zk proof generate --inputs "a=5,b=7"
+```
+
+### How It Works
+
+```
+Password → Poseidon Hash → ZK Circuit → Groth16 Proof
+```
+
+The proof confirms you know the password without revealing it.
+
+### Implementation
+
+```typescript
+import { generatePasswordProof } from '@zkterm/zkstorage';
+
+const proof = await generatePasswordProof({
+  password: 'mypassword',
+  expectedHash: '0x123...'
+});
+
+// Proof contains: pi_a, pi_b, pi_c, publicSignals
+```
+
+## STARK Proofs
+
+Used for zkID on-chain verification on Starknet.
+
+### Generate STARK
+
+```bash
+zkid verify
+```
+
+This creates a STARK proof and submits it to Starknet.
+
+### Cairo Contract
+
+```cairo
+#[starknet::contract]
+mod ZkIDProofRegistry {
+    fn verify_proof(
+        zkid: felt252,
+        public_key: felt252,
+        signature: Signature
+    ) -> bool {
+        // Verify Ed25519 signature
+        // Store proof on-chain
+    }
+}
+```
+
+## Proof Verification
+
+### Client-Side
+
+```typescript
+import { verifyProof } from '@zkterm/zkstorage';
+
+const isValid = await verifyProof(proof, publicSignals);
+```
+
+### Server-Side
+
+```bash
+curl -X POST https://zkterm.io/api/zk-toolkit/proof/verify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "proof": {...},
+    "publicSignals": [...]
+  }'
+```
+
+## Performance
+
+| Proof System | Generation Time | Verification Time | Proof Size |
+|--------------|-----------------|-------------------|------------|
+| Groth16 | ~5-10s | ~100ms | ~200 bytes |
+| STARK | ~2-5s | ~500ms | ~1KB |
+| Ed25519 | ~1ms | ~2ms | 64 bytes |
+
+## Advanced Topics
+
+### Custom Circuits
+
+Create your own ZK circuits using circom:
+
+```circom
+template MyCircuit() {
+    signal input a;
+    signal input b;
+    signal output c;
+    
+    c <== a * b;
+}
+```
+
+### Trusted Setup
+
+zkTerm uses Phase 2 Ceremony powers of tau:
+- pot12_final.ptau for production
+- pot10_final.ptau for testing
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Private Voting" icon="check-to-slot">
+    Prove eligibility without revealing identity
+  </Card>
+  <Card title="KYC Compliance" icon="id-card">
+    Prove verification status without sharing data
+  </Card>
+  <Card title="Anonymous Transfers" icon="money-bill-transfer">
+    Transfer funds without exposing amounts
+  </Card>
+  <Card title="Password Auth" icon="lock">
+    Authenticate without sending password
+  </Card>
+</CardGroup>
+
+## Resources
+
+- [Groth16 Paper](https://eprint.iacr.org/2016/260.pdf)
+- [STARK Documentation](https://starkware.co/stark/)
+- [circom Documentation](https://docs.circom.io/)

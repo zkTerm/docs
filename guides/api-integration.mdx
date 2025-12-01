@@ -1,0 +1,231 @@
+
+---
+title: 'API Integration'
+description: 'Complete guide to integrating zkTerm APIs into your application'
+---
+
+## Base URL
+
+```
+https://zkterm.io/api
+```
+
+All API endpoints require `Content-Type: application/json` header.
+
+## Authentication
+
+Most endpoints require session-based authentication:
+
+```typescript
+// Login first
+const response = await fetch('https://zkterm.io/api/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  credentials: 'include', // Important for cookies
+  body: JSON.stringify({
+    username: 'alice',
+    password: 'secure123'
+  })
+});
+```
+
+## zkID API
+
+### Create Identity
+
+```typescript
+const identity = await fetch('https://zkterm.io/api/zkid/create', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    username: 'alice',
+    password: 'secure123'
+  })
+});
+
+const data = await identity.json();
+// { zkId, publicKey, privateKey }
+```
+
+### Verify On-Chain
+
+```typescript
+const verification = await fetch('https://zkterm.io/api/zkid/verify', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    blockchain: 'starknet' // or 'solana'
+  })
+});
+```
+
+## zkStorage API
+
+### Upload File
+
+```typescript
+const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+formData.append('password', 'mypassword');
+
+const upload = await fetch('https://zkterm.io/api/storage/upload', {
+  method: 'POST',
+  credentials: 'include',
+  body: formData
+});
+
+const { cid, checksum } = await upload.json();
+```
+
+### Download File
+
+```typescript
+const download = await fetch('https://zkterm.io/api/storage/download', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    cid: 'QmXyz123...',
+    password: 'mypassword'
+  })
+});
+
+const blob = await download.blob();
+```
+
+## zkCompression API
+
+### Compress Tokens
+
+```typescript
+const compress = await fetch('https://zkterm.io/api/compress', {
+  method: 'POST',
+  credentials: 'include',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    mint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+    amount: 1000
+  })
+});
+
+const { txHash, costSavings } = await compress.json();
+```
+
+### Get Token Portfolio
+
+```typescript
+const tokens = await fetch('https://zkterm.io/api/wallets/tokens', {
+  credentials: 'include'
+});
+
+const portfolio = await tokens.json();
+// Array of { mint, symbol, balance, isCompressed }
+```
+
+## zkToolkit API
+
+### Hash with Poseidon
+
+```typescript
+const hash = await fetch('https://zkterm.io/api/zk-toolkit/hash/poseidon', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    input: 'hello world'
+  })
+});
+
+const { hash: result } = await hash.json();
+```
+
+### Generate Proof
+
+```typescript
+const proof = await fetch('https://zkterm.io/api/zk-toolkit/proof/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    inputs: { a: 5, b: 7 }
+  })
+});
+
+const { proof: zkProof, publicSignals } = await proof.json();
+```
+
+## Error Handling
+
+All errors follow this format:
+
+```json
+{
+  "error": "Human-readable error message",
+  "details": "Technical details (optional)"
+}
+```
+
+Example:
+
+```typescript
+const response = await fetch('https://zkterm.io/api/zkid/verify');
+
+if (!response.ok) {
+  const error = await response.json();
+  console.error(error.error);
+  console.error(error.details);
+}
+```
+
+## Rate Limiting
+
+- 100 requests per minute per IP
+- 1000 requests per hour per authenticated user
+- Compression operations: 10 per minute
+
+## Webhooks (Coming Soon)
+
+Subscribe to events:
+- Proof verified on-chain
+- File uploaded to IPFS
+- Token compressed successfully
+
+## SDKs
+
+### TypeScript
+
+```bash
+npm install @zkterm/zkid @zkterm/zkstorage @zkterm/zktoolkit
+```
+
+### Python (Coming Soon)
+
+```bash
+pip install zkterm-python
+```
+
+## Complete Example
+
+```typescript
+import { createZkIdIdentity } from '@zkterm/zkid';
+import { zkStorage } from '@zkterm/zkstorage';
+
+async function main() {
+  // 1. Create identity
+  const identity = await createZkIdIdentity('password123');
+  
+  // 2. Upload encrypted file
+  const file = new File(['secret'], 'data.txt');
+  const { cid } = await zkStorage.upload(file, 'filepass');
+  
+  // 3. Download and decrypt
+  const decrypted = await zkStorage.download(cid, 'filepass');
+  
+  console.log('Success!', decrypted);
+}
+
+main();
+```
+
+## API Reference
+
+See [API Reference](/api-reference/overview) for complete endpoint documentation.

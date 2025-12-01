@@ -1,0 +1,159 @@
+---
+title: zkID API
+description: 'API reference for zkID identity operations'
+---
+
+## Create zkID
+
+Create a new privacy-preserving zkID identity.
+
+<ParamField body="username" type="string" required>
+  Unique username (3-20 alphanumeric characters)
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Password (minimum 8 characters)
+</ParamField>
+
+```bash
+POST /api/zkid/create
+```
+
+**Request:**
+```json
+{
+  "username": "alice",
+  "password": "secure_password_123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "did": "did:zk:a7Bk9mX2pQ4r",
+    "publicKey": "0x04abc123...",
+    "createdAt": "2025-12-01T10:00:00Z"
+  }
+}
+```
+
+---
+
+## Verify zkID
+
+Verify identity ownership with Ed25519 proof.
+
+<ParamField body="did" type="string" required>
+  The zkID to verify
+</ParamField>
+
+<ParamField body="proof" type="string" required>
+  Ed25519 signature proof
+</ParamField>
+
+```bash
+POST /api/zkid/verify
+```
+
+**Request:**
+```json
+{
+  "did": "did:zk:a7Bk9mX2pQ4r",
+  "proof": "0x..."
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "valid": true,
+    "solana": {
+      "verified": true,
+      "txSignature": "5abc..."
+    },
+    "starknet": {
+      "verified": true,
+      "txHash": "0x123..."
+    }
+  }
+}
+```
+
+---
+
+## Get zkID Status
+
+Check on-chain verification status.
+
+```bash
+GET /api/zkid/status/:did
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "did": "did:zk:a7Bk9mX2pQ4r",
+    "verified": true,
+    "chains": {
+      "solana": {
+        "verified": true,
+        "txSignature": "5abc...",
+        "timestamp": "2025-12-01T10:00:00Z"
+      },
+      "starknet": {
+        "verified": true,
+        "txHash": "0x123...",
+        "timestamp": "2025-12-01T10:00:05Z"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Login with zkID
+
+Authenticate using zkID credentials.
+
+```bash
+POST /api/zkid/login
+```
+
+**Request:**
+```json
+{
+  "username": "alice",
+  "password": "secure_password_123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "did": "did:zk:a7Bk9mX2pQ4r",
+    "sessionId": "sess_abc123",
+    "expiresAt": "2025-12-02T10:00:00Z"
+  }
+}
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `ZKID_EXISTS` | Username already taken |
+| `ZKID_NOT_FOUND` | zkID doesn't exist |
+| `INVALID_PROOF` | Ed25519 proof verification failed |
+| `CHAIN_ERROR` | On-chain verification failed |
+| `INVALID_PASSWORD` | Password doesn't match |

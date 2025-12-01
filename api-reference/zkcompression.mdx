@@ -1,0 +1,198 @@
+---
+title: zkCompression API
+description: 'API reference for Light Protocol compression operations'
+---
+
+## Compress Tokens
+
+Compress regular SPL tokens to ZK compressed tokens.
+
+<ParamField body="mint" type="string" required>
+  SPL token mint address
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to compress (in token units, not lamports)
+</ParamField>
+
+```bash
+POST /api/compress
+```
+
+**Request:**
+```json
+{
+  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "amount": 100
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "txSignature": "5abc...",
+    "compressed": {
+      "amount": "100000000",
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "decimals": 6
+    }
+  }
+}
+```
+
+---
+
+## Decompress Tokens
+
+Decompress ZK compressed tokens back to regular SPL tokens.
+
+<ParamField body="mint" type="string" required>
+  SPL token mint address
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to decompress (in token units)
+</ParamField>
+
+```bash
+POST /api/decompress
+```
+
+**Request:**
+```json
+{
+  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "amount": 50
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "txSignature": "6def...",
+    "decompressed": {
+      "amount": "50000000",
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "decimals": 6
+    }
+  }
+}
+```
+
+---
+
+## Get Token Balances
+
+Get unified view of all tokens (regular + compressed).
+
+```bash
+GET /api/tokens
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "tokens": [
+      {
+        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "symbol": "USDC",
+        "balance": "1234.56",
+        "type": "regular",
+        "decimals": 6
+      },
+      {
+        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        "symbol": "USDC",
+        "balance": "500.00",
+        "type": "compressed",
+        "decimals": 6
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Get Compressed Token Balance
+
+Get balance of a specific compressed token.
+
+```bash
+GET /api/compressed-balance/:mint
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "balance": "500000000",
+    "decimals": 6,
+    "formatted": "500.00"
+  }
+}
+```
+
+---
+
+## Transfer Compressed Tokens
+
+Transfer compressed tokens to another wallet.
+
+<ParamField body="mint" type="string" required>
+  Token mint address
+</ParamField>
+
+<ParamField body="to" type="string" required>
+  Recipient wallet address
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to transfer
+</ParamField>
+
+```bash
+POST /api/transfer-compressed
+```
+
+**Request:**
+```json
+{
+  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "to": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+  "amount": 100
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "txSignature": "7ghi...",
+    "from": "dujNoX4...",
+    "to": "9WzDXwB...",
+    "amount": "100000000"
+  }
+}
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `INSUFFICIENT_BALANCE` | Not enough tokens to compress/decompress |
+| `INVALID_MINT` | Invalid token mint address |
+| `RPC_ERROR` | Solana RPC connection error |
+| `INDEXER_SYNC` | RPC indexer not synced (retry) |
+| `WALLET_LOCKED` | Wallet mutex lock failed |

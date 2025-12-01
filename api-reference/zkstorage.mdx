@@ -1,0 +1,251 @@
+---
+title: zkStorage API
+description: 'API reference for encrypted file storage'
+---
+
+## Upload File
+
+Upload an encrypted file to IPFS with ZK proof.
+
+<ParamField body="file" type="File" required>
+  File to upload (multipart/form-data)
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Password for encryption
+</ParamField>
+
+```bash
+POST /api/zk-storage/upload
+Content-Type: multipart/form-data
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "cid": "QmXyz123abc456def789...",
+    "filename": "document.pdf",
+    "size": 1234567,
+    "proof": {
+      "pi_a": [...],
+      "pi_b": [...],
+      "pi_c": [...],
+      "protocol": "groth16"
+    },
+    "checksum": "sha256:abc123..."
+  }
+}
+```
+
+---
+
+## Download File
+
+Download and decrypt a file from IPFS.
+
+<ParamField body="cid" type="string" required>
+  IPFS Content Identifier
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  Password for decryption
+</ParamField>
+
+```bash
+POST /api/zk-storage/download
+```
+
+**Request:**
+```json
+{
+  "cid": "QmXyz123abc456def789...",
+  "password": "secure_password"
+}
+```
+
+**Response:** Binary file data with headers:
+```
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="document.pdf"
+X-Checksum: sha256:abc123...
+```
+
+---
+
+## List Files
+
+Get list of uploaded files for current user.
+
+```bash
+GET /api/zk-storage/list
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "files": [
+      {
+        "cid": "QmXyz123...",
+        "filename": "document.pdf",
+        "size": 1234567,
+        "uploadedAt": "2025-12-01T10:00:00Z",
+        "checksum": "sha256:abc123..."
+      },
+      {
+        "cid": "QmAbc456...",
+        "filename": "image.png",
+        "size": 500000,
+        "uploadedAt": "2025-11-30T15:30:00Z",
+        "checksum": "sha256:def456..."
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Verify Proof
+
+Verify ZK proof for a file without downloading.
+
+<ParamField body="cid" type="string" required>
+  IPFS Content Identifier
+</ParamField>
+
+<ParamField body="proof" type="object" required>
+  Groth16 proof object
+</ParamField>
+
+```bash
+POST /api/zk-storage/verify
+```
+
+**Request:**
+```json
+{
+  "cid": "QmXyz123abc456def789...",
+  "proof": {
+    "pi_a": [...],
+    "pi_b": [...],
+    "pi_c": [...]
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "valid": true,
+    "cid": "QmXyz123..."
+  }
+}
+```
+
+---
+
+## Delete File
+
+Unpin a file from IPFS (removes from Pinata).
+
+<ParamField path="cid" type="string" required>
+  IPFS Content Identifier
+</ParamField>
+
+```bash
+DELETE /api/zk-storage/:cid
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "deleted": true,
+    "cid": "QmXyz123..."
+  }
+}
+```
+
+---
+
+## Get File Metadata
+
+Get metadata for a file without downloading.
+
+```bash
+GET /api/zk-storage/:cid/metadata
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "cid": "QmXyz123...",
+    "filename": "document.pdf",
+    "size": 1234567,
+    "mimeType": "application/pdf",
+    "uploadedAt": "2025-12-01T10:00:00Z",
+    "checksum": "sha256:abc123...",
+    "encrypted": true
+  }
+}
+```
+
+---
+
+## Share File
+
+Generate a shareable link for a file.
+
+<ParamField body="cid" type="string" required>
+  IPFS Content Identifier
+</ParamField>
+
+<ParamField body="expiresIn" type="number">
+  Link expiry in hours (default: 24)
+</ParamField>
+
+```bash
+POST /api/zk-storage/share
+```
+
+**Request:**
+```json
+{
+  "cid": "QmXyz123abc456def789...",
+  "expiresIn": 48
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "shareUrl": "https://zkterm.io/share/abc123token",
+    "expiresAt": "2025-12-03T10:00:00Z",
+    "token": "abc123token"
+  }
+}
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `FILE_TOO_LARGE` | File exceeds max size (100MB) |
+| `INVALID_PASSWORD` | Decryption failed - wrong password |
+| `CID_NOT_FOUND` | File not found on IPFS |
+| `PROOF_INVALID` | ZK proof verification failed |
+| `CHECKSUM_MISMATCH` | File integrity check failed |
+| `SHARE_EXPIRED` | Share link has expired |

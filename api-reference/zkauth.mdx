@@ -1,0 +1,280 @@
+---
+title: zkAuth API
+description: 'API reference for passwordless authentication'
+---
+
+## Initiate Login
+
+Start OAuth flow with social provider.
+
+<ParamField query="provider" type="string" required>
+  OAuth provider: `google`, `github`, or `x`
+</ParamField>
+
+<ParamField query="redirect" type="string">
+  Redirect URL after authentication (default: /)
+</ParamField>
+
+```bash
+GET /api/zkauth/login?provider=google
+```
+
+**Response:** Redirect to OAuth provider
+
+---
+
+## OAuth Callback
+
+Handle OAuth callback (internal endpoint).
+
+```bash
+GET /api/zkauth/callback/:provider
+```
+
+**Response:** Redirect to application with session
+
+---
+
+## Get Auth Status
+
+Check current authentication status.
+
+```bash
+GET /api/zkauth/status
+```
+
+**Response (authenticated):**
+```json
+{
+  "success": true,
+  "data": {
+    "authenticated": true,
+    "provider": "google",
+    "email": "user@example.com",
+    "name": "John Doe",
+    "avatar": "https://...",
+    "publicKey": "0x04abc...",
+    "starknet": {
+      "verified": true,
+      "contract": "0x123...",
+      "proofExpiry": "2025-12-08T10:00:00Z"
+    }
+  }
+}
+```
+
+**Response (not authenticated):**
+```json
+{
+  "success": true,
+  "data": {
+    "authenticated": false
+  }
+}
+```
+
+---
+
+## Generate STARK Proof
+
+Generate a new STARK proof for the current session.
+
+```bash
+POST /api/zkauth/prove
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "proof": {
+      "stark_proof": "0x...",
+      "public_inputs": ["0x...", "0x..."],
+      "cairo_version": "2.0"
+    },
+    "verified": true,
+    "txHash": "0x456...",
+    "expiresAt": "2025-12-08T10:00:00Z"
+  }
+}
+```
+
+---
+
+## Verify Session
+
+Verify that current session has valid STARK proof.
+
+```bash
+POST /api/zkauth/verify
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "valid": true,
+    "proofExpiry": "2025-12-08T10:00:00Z",
+    "starknet": {
+      "contract": "0x123...",
+      "verified": true
+    }
+  }
+}
+```
+
+---
+
+## Refresh Proof
+
+Refresh STARK proof before expiry.
+
+```bash
+POST /api/zkauth/refresh
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "proof": {
+      "stark_proof": "0x...",
+      "public_inputs": ["0x...", "0x..."]
+    },
+    "txHash": "0x789...",
+    "expiresAt": "2025-12-15T10:00:00Z"
+  }
+}
+```
+
+---
+
+## Logout
+
+End session and revoke STARK proof.
+
+```bash
+POST /api/zkauth/logout
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "loggedOut": true,
+    "proofRevoked": true
+  }
+}
+```
+
+---
+
+## Get Supported Providers
+
+List available OAuth providers.
+
+```bash
+GET /api/zkauth/providers
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "providers": [
+      {
+        "id": "google",
+        "name": "Google",
+        "icon": "google",
+        "enabled": true
+      },
+      {
+        "id": "github",
+        "name": "GitHub",
+        "icon": "github",
+        "enabled": true
+      },
+      {
+        "id": "x",
+        "name": "X (Twitter)",
+        "icon": "x-twitter",
+        "enabled": true
+      },
+      {
+        "id": "apple",
+        "name": "Apple",
+        "icon": "apple",
+        "enabled": false
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Link Provider
+
+Link additional OAuth provider to existing account.
+
+<ParamField query="provider" type="string" required>
+  Provider to link
+</ParamField>
+
+```bash
+GET /api/zkauth/link?provider=github
+```
+
+**Response:** Redirect to OAuth provider
+
+---
+
+## Unlink Provider
+
+Remove linked OAuth provider (must keep at least one).
+
+<ParamField body="provider" type="string" required>
+  Provider to unlink
+</ParamField>
+
+```bash
+POST /api/zkauth/unlink
+```
+
+**Request:**
+```json
+{
+  "provider": "github"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "unlinked": true,
+    "provider": "github",
+    "remainingProviders": ["google"]
+  }
+}
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `PROVIDER_UNAVAILABLE` | OAuth provider not available |
+| `AUTH_FAILED` | OAuth authentication failed |
+| `SESSION_EXPIRED` | Session has expired |
+| `PROOF_EXPIRED` | STARK proof has expired |
+| `PROOF_GENERATION_FAILED` | Failed to generate STARK proof |
+| `CANNOT_UNLINK` | Cannot unlink last provider |
+| `STARKNET_ERROR` | Starknet verification failed |

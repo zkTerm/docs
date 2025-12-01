@@ -1,0 +1,367 @@
+---
+title: zkToolkit API
+description: 'API reference for cryptographic primitives'
+---
+
+## Hash Functions
+
+### Poseidon Hash
+
+```bash
+POST /api/zk-toolkit/hash/poseidon
+```
+
+**Request:**
+```json
+{
+  "input": "hello world"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "hash": "0x1234567890abcdef..."
+  }
+}
+```
+
+### Pedersen Hash
+
+```bash
+POST /api/zk-toolkit/hash/pedersen
+```
+
+### MiMC Hash
+
+```bash
+POST /api/zk-toolkit/hash/mimc
+```
+
+**Request (with optional key):**
+```json
+{
+  "input": "data",
+  "key": "optional_key"
+}
+```
+
+---
+
+## Field Arithmetic
+
+All operations use BN254 prime field.
+
+### Add
+
+```bash
+POST /api/zk-toolkit/field/add
+```
+
+**Request:**
+```json
+{
+  "a": "5",
+  "b": "7"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "result": "12"
+  }
+}
+```
+
+### Subtract
+
+```bash
+POST /api/zk-toolkit/field/sub
+```
+
+### Multiply
+
+```bash
+POST /api/zk-toolkit/field/mul
+```
+
+### Divide
+
+```bash
+POST /api/zk-toolkit/field/div
+```
+
+### Inverse
+
+```bash
+POST /api/zk-toolkit/field/inv
+```
+
+**Request:**
+```json
+{
+  "a": "5"
+}
+```
+
+### Power
+
+```bash
+POST /api/zk-toolkit/field/pow
+```
+
+**Request:**
+```json
+{
+  "base": "2",
+  "exp": "256"
+}
+```
+
+### Square Root
+
+```bash
+POST /api/zk-toolkit/field/sqrt
+```
+
+### Random Element
+
+```bash
+GET /api/zk-toolkit/field/random
+```
+
+### Get Prime
+
+```bash
+GET /api/zk-toolkit/field/prime
+```
+
+---
+
+## Elliptic Curve (Baby JubJub)
+
+### Base Point
+
+```bash
+GET /api/zk-toolkit/ec/base
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "x": "5299619240641551281634865583518297030282874472190772894086521144482721001553",
+    "y": "16950150798460657717958625567821834550301663161624707787222815936182638968203"
+  }
+}
+```
+
+### Scalar Multiplication (Base Point)
+
+```bash
+POST /api/zk-toolkit/ec/mulbase
+```
+
+**Request:**
+```json
+{
+  "scalar": "12345"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "x": "123...",
+    "y": "456..."
+  }
+}
+```
+
+### Point Addition
+
+```bash
+POST /api/zk-toolkit/ec/add
+```
+
+**Request:**
+```json
+{
+  "p1": { "x": "...", "y": "..." },
+  "p2": { "x": "...", "y": "..." }
+}
+```
+
+### Scalar Multiplication
+
+```bash
+POST /api/zk-toolkit/ec/mul
+```
+
+**Request:**
+```json
+{
+  "point": { "x": "...", "y": "..." },
+  "scalar": "12345"
+}
+```
+
+### Check Point on Curve
+
+```bash
+POST /api/zk-toolkit/ec/isoncurve
+```
+
+**Request:**
+```json
+{
+  "x": "...",
+  "y": "..."
+}
+```
+
+### Curve Parameters
+
+```bash
+GET /api/zk-toolkit/ec/params
+```
+
+---
+
+## Shamir Secret Sharing
+
+### Split Secret
+
+```bash
+POST /api/zk-toolkit/shamir/split
+```
+
+**Request:**
+```json
+{
+  "secret": "42",
+  "threshold": 3,
+  "shares": 5
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "shares": [
+      "1:1234567890",
+      "2:2345678901",
+      "3:3456789012",
+      "4:4567890123",
+      "5:5678901234"
+    ],
+    "threshold": 3,
+    "total": 5
+  }
+}
+```
+
+### Combine Shares
+
+```bash
+POST /api/zk-toolkit/shamir/combine
+```
+
+**Request:**
+```json
+{
+  "shares": [
+    "1:1234567890",
+    "2:2345678901",
+    "3:3456789012"
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "secret": "42"
+  }
+}
+```
+
+---
+
+## Groth16 Proofs
+
+### Generate Proof
+
+```bash
+POST /api/zk-toolkit/proof/generate
+```
+
+**Request:**
+```json
+{
+  "inputs": {
+    "a": "5",
+    "b": "7"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "proof": {
+      "pi_a": [...],
+      "pi_b": [...],
+      "pi_c": [...],
+      "protocol": "groth16"
+    },
+    "publicSignals": ["12"]
+  }
+}
+```
+
+### Verify Proof
+
+```bash
+POST /api/zk-toolkit/proof/verify
+```
+
+**Request:**
+```json
+{
+  "proof": { ... },
+  "publicSignals": ["12"]
+}
+```
+
+### List Circuits
+
+```bash
+GET /api/zk-toolkit/proof/circuits
+```
+
+---
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `INVALID_INPUT` | Invalid input format |
+| `FIELD_OVERFLOW` | Value exceeds field prime |
+| `NOT_ON_CURVE` | Point not on Baby JubJub curve |
+| `PROOF_FAILED` | Proof generation/verification failed |
+| `INVALID_SHARES` | Invalid or insufficient shares |

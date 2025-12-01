@@ -1,0 +1,162 @@
+---
+title: ZK Ecosystem Overview
+description: 'Complete suite of zero-knowledge tools for privacy-preserving applications'
+---
+
+## The zkTerm Ecosystem
+
+zkTerm provides a unified interface to multiple ZK technologies, eliminating the need to learn different tools and frameworks for each ZK use case.
+
+<Frame>
+  <img src="/images/zk-ecosystem.png" alt="ZK Ecosystem Overview" />
+</Frame>
+
+## Ecosystem Components
+
+| Component | Description | Status |
+|-----------|-------------|--------|
+| **zkID** | Universal ZK identity with `did:zk` format | Live |
+| **zkCompression** | Light Protocol for Solana token compression | Live |
+| **zkToolkit** | 10-module cryptographic primitives library | Live |
+| **zkStorage** | Encrypted IPFS with zkSNARK proofs | Live |
+| **zkAuth** | Passwordless social login with STARK proofs | Coming Soon |
+
+## zkID
+
+<Card title="zkID Documentation" icon="fingerprint" href="/zk-ecosystem/zkid">
+  Privacy-preserving universal identity
+</Card>
+
+**Key Features:**
+- `did:zk:[12 alphanumeric chars]` universal DID format
+- Client-side Ed25519 proof generation
+- Dual-chain on-chain verification (Solana Mainnet + Starknet Sepolia)
+- Cairo smart contract for zkID proof storage
+
+```bash
+zkid create           # Create new zkID
+zkid verify           # Verify your identity
+zkid status           # Check on-chain status
+```
+
+## zkCompression
+
+<Card title="zkCompression Documentation" icon="compress" href="/zk-ecosystem/zkcompression">
+  Light Protocol integration for Solana
+</Card>
+
+**Key Features:**
+- Compress SPL tokens to reduce storage costs by 1000x
+- Decompress tokens back to regular SPL tokens
+- Full terminal and API integration
+- Automatic retry polling for RPC indexer sync
+
+```bash
+compress <mint> <amount>     # Compress tokens
+decompress <mint> <amount>   # Decompress tokens
+zk tokens                    # View all tokens (regular + compressed)
+```
+
+## zkToolkit
+
+<Card title="zkToolkit Documentation" icon="toolbox" href="/zk-ecosystem/zktoolkit">
+  Complete ZK cryptographic primitives
+</Card>
+
+**10 Modules:**
+
+<CardGroup cols={2}>
+  <Card title="Hash" icon="hashtag">
+    Poseidon, Pedersen, MiMC
+  </Card>
+  <Card title="Commit" icon="lock">
+    Pedersen commitments
+  </Card>
+  <Card title="Merkle" icon="sitemap">
+    Trees and inclusion proofs
+  </Card>
+  <Card title="Range" icon="arrows-left-right">
+    Range proofs
+  </Card>
+  <Card title="Sign" icon="signature">
+    EdDSA on Baby JubJub
+  </Card>
+  <Card title="Nullifier" icon="ban">
+    Double-spend prevention
+  </Card>
+  <Card title="Field" icon="calculator">
+    BN254 field arithmetic
+  </Card>
+  <Card title="EC" icon="circle-nodes">
+    Baby JubJub curve ops
+  </Card>
+  <Card title="Shamir" icon="share-nodes">
+    Secret sharing
+  </Card>
+  <Card title="Proof" icon="certificate">
+    Groth16 zkSNARKs
+  </Card>
+</CardGroup>
+
+```bash
+zk toolkit help              # Show all modules
+zk toolkit hash poseidon     # Hash with Poseidon
+zk field add 5 7             # Field addition
+zk ec mulbase 12345          # EC scalar multiplication
+```
+
+## zkStorage
+
+<Card title="zkStorage Documentation" icon="hard-drive" href="/zk-ecosystem/zkstorage">
+  Encrypted decentralized file storage
+</Card>
+
+**Key Features:**
+- Client-side AES-256-GCM encryption
+- IPFS storage via Pinata
+- Groth16 zkSNARK proofs for password verification
+- SHA-256 checksum validation
+
+```bash
+zk storage upload <file>     # Upload encrypted file
+zk storage download <cid>    # Download and decrypt
+zk storage list              # List your files
+zk storage verify <cid>      # Verify with ZK proof
+```
+
+## zkAuth
+
+<Card title="zkAuth Documentation" icon="key" href="/zk-ecosystem/zkauth">
+  Passwordless authentication with STARK proofs
+</Card>
+
+**Key Features:**
+- Web3Auth social login (Google, GitHub, X)
+- No passwords, no seed phrases
+- STARK proofs on Starknet for verification
+- Quantum-resistant cryptography
+
+```bash
+zkauth login google          # Login with Google
+zkauth login github          # Login with GitHub
+zkauth status                # Check auth status
+```
+
+## Terminal Access
+
+All ecosystem components are accessible through the zkTerm terminal:
+
+```bash
+# Visit https://zkterm.io/terminal
+# Or use the REST API at https://zkterm.io/api/
+```
+
+## API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/zkid/*` | zkID operations |
+| `POST /api/compress/*` | Compression operations |
+| `POST /api/zk-toolkit/*` | Toolkit primitives |
+| `POST /api/zk-storage/*` | Storage operations |
+| `POST /api/zkauth/*` | Authentication |

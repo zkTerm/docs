@@ -1,0 +1,302 @@
+---
+title: zkAuth
+description: 'Passwordless authentication with social login and STARK proofs'
+---
+
+## Overview
+
+zkAuth provides passwordless authentication using social login (Google, GitHub, X) with STARK proofs on Starknet for verification. No passwords, no seed phrases - just seamless Web3 authentication.
+
+<Note>
+  zkAuth is powered by Web3Auth for key management and uses Cairo STARK proofs for quantum-resistant on-chain verification.
+</Note>
+
+## How It Works
+
+<Steps>
+  <Step title="Social Login">
+    User authenticates with Google, GitHub, or X via Web3Auth.
+  </Step>
+  <Step title="Key Generation">
+    Web3Auth generates a non-custodial key unique to the user and app.
+  </Step>
+  <Step title="STARK Proof">
+    A STARK proof is generated proving ownership of the key without revealing it.
+  </Step>
+  <Step title="On-Chain Verification">
+    The proof is verified on Starknet via a Cairo smart contract.
+  </Step>
+</Steps>
+
+## Why STARK?
+
+<CardGroup cols={2}>
+  <Card title="Quantum Resistant" icon="atom">
+    STARK proofs are secure against quantum computers
+  </Card>
+  <Card title="No Trusted Setup" icon="shield-check">
+    Unlike Groth16, STARKs require no trusted ceremony
+  </Card>
+  <Card title="Transparent" icon="eye">
+    Fully transparent verification with no hidden assumptions
+  </Card>
+  <Card title="Scalable" icon="arrow-up-right-dots">
+    Proof size grows logarithmically with computation
+  </Card>
+</CardGroup>
+
+## Terminal Commands
+
+### Login with Google
+
+```bash
+zkauth login google
+```
+
+Opens Google OAuth flow and generates STARK proof upon successful authentication.
+
+### Login with GitHub
+
+```bash
+zkauth login github
+```
+
+Opens GitHub OAuth flow for developer-friendly authentication.
+
+### Login with X (Twitter)
+
+```bash
+zkauth login x
+```
+
+Opens X OAuth flow for social authentication.
+
+### Check Auth Status
+
+```bash
+zkauth status
+```
+
+Shows current authentication status:
+
+```
+zkAuth Status
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Provider:     Google
+Email:        user@example.com
+Public Key:   0x04abc...
+Starknet:     Verified ✓
+Proof Valid:  Until 2025-12-08
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Logout
+
+```bash
+zkauth logout
+```
+
+Clears session and revokes STARK proof.
+
+### Refresh Proof
+
+```bash
+zkauth refresh
+```
+
+Generates a new STARK proof for the current session.
+
+## API Reference
+
+### Initiate Login
+
+<ParamField query="provider" type="string" required>
+  OAuth provider: `google`, `github`, or `x`
+</ParamField>
+
+```bash
+GET /api/zkauth/login?provider=google
+```
+
+**Response:** Redirect to OAuth provider
+
+### Verify Session
+
+```bash
+GET /api/zkauth/status
+```
+
+**Response:**
+
+```json
+{
+  "authenticated": true,
+  "provider": "google",
+  "email": "user@example.com",
+  "publicKey": "0x04abc...",
+  "starknet": {
+    "verified": true,
+    "contract": "0x123...",
+    "proofExpiry": "2025-12-08T10:00:00Z"
+  }
+}
+```
+
+### Generate Proof
+
+```bash
+POST /api/zkauth/prove
+```
+
+**Response:**
+
+```json
+{
+  "proof": {
+    "stark_proof": "0x...",
+    "public_inputs": ["0x...", "0x..."],
+    "cairo_version": "2.0"
+  },
+  "verified": true,
+  "txHash": "0x456..."
+}
+```
+
+## Technical Architecture
+
+### Web3Auth Integration
+
+zkAuth uses Web3Auth for non-custodial key management:
+
+```typescript
+import { Web3Auth } from "@web3auth/modal";
+
+const web3auth = new Web3Auth({
+  clientId: process.env.WEB3AUTH_CLIENT_ID,
+  chainConfig: {
+    chainNamespace: "other",
+    chainId: "SN_SEPOLIA",
+  },
+});
+
+await web3auth.initModal();
+const provider = await web3auth.connect();
+```
+
+### STARK Proof Generation
+
+STARK proofs are generated using Cairo:
+
+```cairo
+#[starknet::contract]
+mod ZkAuthVerifier {
+    use starknet::ContractAddress;
+    
+    #[storage]
+    struct Storage {
+        verified_users: LegacyMap<ContractAddress, bool>,
+        proofs: LegacyMap<felt252, StarkProof>,
+    }
+    
+    #[external(v0)]
+    fn verify_auth(
+        ref self: ContractState,
+        public_key_hash: felt252,
+        proof: Span<felt252>
+    ) -> bool {
+        // STARK verification logic
+        let valid = verify_stark_proof(public_key_hash, proof);
+        if valid {
+            self.verified_users.write(get_caller_address(), true);
+        }
+        valid
+    }
+}
+```
+
+### Security Model
+
+<Accordion title="Key Management">
+  Web3Auth generates keys using threshold cryptography. The key is split between:
+  - User's device (1 share)
+  - Web3Auth network (1 share)
+  - Recovery share (optional)
+  
+  No single party can access the full key.
+</Accordion>
+
+<Accordion title="Proof Expiry">
+  STARK proofs have a configurable expiry (default: 7 days). After expiry, a new proof must be generated to access protected resources.
+</Accordion>
+
+<Accordion title="Session Binding">
+  Each proof is bound to:
+  - Specific session ID
+  - User's public key
+  - Timestamp
+  - Application domain
+</Accordion>
+
+## Comparison with Traditional Auth
+
+| Feature | Traditional | zkAuth |
+|---------|-------------|--------|
+| Password | Required | None |
+| Seed Phrase | Required (Web3) | None |
+| Privacy | Email exposed | ZK proof, no email on-chain |
+| Security | Password attacks | STARK (quantum-resistant) |
+| UX | Multiple steps | One-click |
+
+## Example: Full Authentication Flow
+
+```bash
+# 1. Login with Google
+> zkauth login google
+Opening Google OAuth...
+Authenticating...
+Generating STARK proof...
+Submitting to Starknet...
+
+Success!
+Logged in as: user@example.com
+Public Key: 0x04abc123...
+Starknet TX: 0x789def...
+
+# 2. Check status
+> zkauth status
+Provider: Google
+Email: user@example.com
+Starknet: Verified ✓
+Proof expires: 2025-12-08
+
+# 3. Access protected resource
+> zk storage upload secret.pdf
+zkAuth verified ✓
+Uploading...
+
+# 4. Logout
+> zkauth logout
+Session cleared.
+STARK proof revoked.
+```
+
+## Supported Providers
+
+<CardGroup cols={3}>
+  <Card title="Google" icon="google">
+    Gmail and Google Workspace accounts
+  </Card>
+  <Card title="GitHub" icon="github">
+    GitHub personal and organization accounts
+  </Card>
+  <Card title="X (Twitter)" icon="x-twitter">
+    X/Twitter accounts
+  </Card>
+</CardGroup>
+
+## Coming Soon
+
+- **Apple Sign-In**: iOS-native authentication
+- **Discord**: Gaming and community integration
+- **Email OTP**: Passwordless email verification
+- **Biometric**: Face ID and fingerprint support

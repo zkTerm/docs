@@ -1,0 +1,122 @@
+
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "zkTerm Documentation",
+  "logo": {
+    "dark": "/logo/zkterm-dark.svg",
+    "light": "/logo/zkterm-light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#22c55e",
+    "light": "#4ade80",
+    "dark": "#16a34a",
+    "anchors": {
+      "from": "#22c55e",
+      "to": "#ec4899"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Terminal",
+      "url": "https://zkterm.io/terminal"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Launch App",
+    "url": "https://zkterm.io"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Guides",
+      "url": "guides"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/zkterm"
+    },
+    {
+      "name": "Discord",
+      "icon": "discord",
+      "url": "https://discord.gg/zkterm"
+    },
+    {
+      "name": "Twitter",
+      "icon": "x-twitter",
+      "url": "https://x.com/zkterm"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "getting-started",
+        "quickstart"
+      ]
+    },
+    {
+      "group": "ZK Ecosystem",
+      "pages": [
+        "zk-ecosystem/overview",
+        "zk-ecosystem/zkid",
+        "zk-ecosystem/zkcompression",
+        "zk-ecosystem/zktoolkit",
+        "zk-ecosystem/zkstorage",
+        "zk-ecosystem/zkauth"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/zkid-integration",
+        "guides/compression-workflow",
+        "guides/file-encryption",
+        "guides/zk-proofs",
+        "guides/api-integration"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/overview",
+        "api-reference/zkid",
+        "api-reference/zkcompression",
+        "api-reference/zktoolkit",
+        "api-reference/zkstorage",
+        "api-reference/zkauth"
+      ]
+    },
+    {
+      "group": "Resources",
+      "pages": [
+        "resources/faq",
+        "resources/troubleshooting",
+        "resources/security",
+        "resources/changelog"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/zkterm",
+    "github": "https://github.com/zkterm",
+    "discord": "https://discord.gg/zkterm"
+  },
+  "analytics": {
+    "ga4": {
+      "measurementId": "G-XXXXXXXXXX"
+    }
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  }
+}
