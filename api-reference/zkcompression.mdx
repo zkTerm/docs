@@ -3,25 +3,73 @@ title: zkCompression API
 description: 'API reference for Light Protocol compression operations'
 ---
 
-## Compress Tokens
+## Compress SOL
 
-Compress regular SPL tokens to ZK compressed tokens.
-
-<ParamField body="mint" type="string" required>
-  SPL token mint address
-</ParamField>
-
-<ParamField body="amount" type="number" required>
-  Amount to compress (in token units, not lamports)
-</ParamField>
+Compress native SOL to ZK compressed SOL.
 
 ```bash
-POST /api/compress
+POST /api/light/compress-sol
 ```
 
 **Request:**
 ```json
 {
+  "walletId": "wallet_uuid",
+  "amount": 1.5
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "txHash": "5abc...",
+  "compressedAmount": "1500000000",
+  "decimals": 9
+}
+```
+
+---
+
+## Decompress SOL
+
+Decompress ZK compressed SOL back to native SOL.
+
+```bash
+POST /api/light/decompress-sol
+```
+
+**Request:**
+```json
+{
+  "walletId": "wallet_uuid",
+  "amount": 1.5
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "txHash": "6def...",
+  "decompressedAmount": "1500000000"
+}
+```
+
+---
+
+## Compress Token
+
+Compress regular SPL tokens to ZK compressed tokens.
+
+```bash
+POST /api/light/compress-token
+```
+
+**Request:**
+```json
+{
+  "walletId": "wallet_uuid",
   "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   "amount": 100
 }
@@ -31,38 +79,27 @@ POST /api/compress
 ```json
 {
   "success": true,
-  "data": {
-    "txSignature": "5abc...",
-    "compressed": {
-      "amount": "100000000",
-      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      "decimals": 6
-    }
-  }
+  "txHash": "7ghi...",
+  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "compressedAmount": "100000000",
+  "decimals": 6
 }
 ```
 
 ---
 
-## Decompress Tokens
+## Decompress Token
 
 Decompress ZK compressed tokens back to regular SPL tokens.
 
-<ParamField body="mint" type="string" required>
-  SPL token mint address
-</ParamField>
-
-<ParamField body="amount" type="number" required>
-  Amount to decompress (in token units)
-</ParamField>
-
 ```bash
-POST /api/decompress
+POST /api/light/decompress-token
 ```
 
 **Request:**
 ```json
 {
+  "walletId": "wallet_uuid",
   "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   "amount": 50
 }
@@ -72,49 +109,28 @@ POST /api/decompress
 ```json
 {
   "success": true,
-  "data": {
-    "txSignature": "6def...",
-    "decompressed": {
-      "amount": "50000000",
-      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      "decimals": 6
-    }
-  }
+  "txHash": "8jkl...",
+  "decompressedAmount": "50000000"
 }
 ```
 
 ---
 
-## Get Token Balances
+## Get Compressed Balance
 
-Get unified view of all tokens (regular + compressed).
+Get balance of compressed SOL.
 
 ```bash
-GET /api/tokens
+GET /api/light/compressed-balance/:walletId
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "data": {
-    "tokens": [
-      {
-        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "symbol": "USDC",
-        "balance": "1234.56",
-        "type": "regular",
-        "decimals": 6
-      },
-      {
-        "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        "symbol": "USDC",
-        "balance": "500.00",
-        "type": "compressed",
-        "decimals": 6
-      }
-    ]
-  }
+  "balance": "1500000000",
+  "formatted": "1.5",
+  "decimals": 9
 }
 ```
 
@@ -125,19 +141,17 @@ GET /api/tokens
 Get balance of a specific compressed token.
 
 ```bash
-GET /api/compressed-balance/:mint
+GET /api/light/compressed-token-balance/:walletId/:mint
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "data": {
-    "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    "balance": "500000000",
-    "decimals": 6,
-    "formatted": "500.00"
-  }
+  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "balance": "100000000",
+  "formatted": "100.00",
+  "decimals": 6
 }
 ```
 
@@ -147,28 +161,17 @@ GET /api/compressed-balance/:mint
 
 Transfer compressed tokens to another wallet.
 
-<ParamField body="mint" type="string" required>
-  Token mint address
-</ParamField>
-
-<ParamField body="to" type="string" required>
-  Recipient wallet address
-</ParamField>
-
-<ParamField body="amount" type="number" required>
-  Amount to transfer
-</ParamField>
-
 ```bash
-POST /api/transfer-compressed
+POST /api/light/transfer
 ```
 
 **Request:**
 ```json
 {
+  "walletId": "wallet_uuid",
   "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   "to": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-  "amount": 100
+  "amount": 50
 }
 ```
 
@@ -176,12 +179,37 @@ POST /api/transfer-compressed
 ```json
 {
   "success": true,
-  "data": {
-    "txSignature": "7ghi...",
-    "from": "dujNoX4...",
-    "to": "9WzDXwB...",
-    "amount": "100000000"
-  }
+  "txHash": "9mno...",
+  "from": "dujNoX4...",
+  "to": "9WzDXwB...",
+  "amount": "50000000"
+}
+```
+
+---
+
+## Create Compressed Token
+
+Create a new compressed SPL token mint.
+
+```bash
+POST /api/light/create-token
+```
+
+**Request:**
+```json
+{
+  "walletId": "wallet_uuid",
+  "decimals": 6
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "mintAddress": "NewMint123...",
+  "txHash": "abc..."
 }
 ```
 
@@ -194,5 +222,5 @@ POST /api/transfer-compressed
 | `INSUFFICIENT_BALANCE` | Not enough tokens to compress/decompress |
 | `INVALID_MINT` | Invalid token mint address |
 | `RPC_ERROR` | Solana RPC connection error |
-| `INDEXER_SYNC` | RPC indexer not synced (retry) |
+| `INDEXER_SYNC` | RPC indexer not synced (retry after delay) |
 | `WALLET_LOCKED` | Wallet mutex lock failed |

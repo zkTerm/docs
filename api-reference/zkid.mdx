@@ -3,127 +3,48 @@ title: zkID API
 description: 'API reference for zkID identity operations'
 ---
 
-## Create zkID
+## Register
 
 Create a new privacy-preserving zkID identity.
 
-<ParamField body="username" type="string" required>
-  Unique username (3-20 alphanumeric characters)
-</ParamField>
-
-<ParamField body="password" type="string" required>
-  Password (minimum 8 characters)
-</ParamField>
-
 ```bash
-POST /api/zkid/create
+POST /api/auth/register
 ```
 
 **Request:**
 ```json
 {
   "username": "alice",
-  "password": "secure_password_123"
+  "password": "secure_password_123",
+  "identityPublicKey": "base64_public_key",
+  "identityPrivateKeyEncrypted": "base64_encrypted",
+  "identityPrivateKeyIv": "base64_iv",
+  "kdfSalt": "base64_salt",
+  "kdfIterations": 200000
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "data": {
-    "did": "did:zk:a7Bk9mX2pQ4r",
-    "publicKey": "0x04abc123...",
-    "createdAt": "2025-12-01T10:00:00Z"
+  "message": "zkID created successfully",
+  "user": {
+    "id": "uuid",
+    "username": "alice",
+    "zkId": "did:zk:a7Bk9mX2pQ4r",
+    "identityPublicKey": "base64_public_key"
   }
 }
 ```
 
 ---
 
-## Verify zkID
-
-Verify identity ownership with Ed25519 proof.
-
-<ParamField body="did" type="string" required>
-  The zkID to verify
-</ParamField>
-
-<ParamField body="proof" type="string" required>
-  Ed25519 signature proof
-</ParamField>
-
-```bash
-POST /api/zkid/verify
-```
-
-**Request:**
-```json
-{
-  "did": "did:zk:a7Bk9mX2pQ4r",
-  "proof": "0x..."
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "valid": true,
-    "solana": {
-      "verified": true,
-      "txSignature": "5abc..."
-    },
-    "starknet": {
-      "verified": true,
-      "txHash": "0x123..."
-    }
-  }
-}
-```
-
----
-
-## Get zkID Status
-
-Check on-chain verification status.
-
-```bash
-GET /api/zkid/status/:did
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "did": "did:zk:a7Bk9mX2pQ4r",
-    "verified": true,
-    "chains": {
-      "solana": {
-        "verified": true,
-        "txSignature": "5abc...",
-        "timestamp": "2025-12-01T10:00:00Z"
-      },
-      "starknet": {
-        "verified": true,
-        "txHash": "0x123...",
-        "timestamp": "2025-12-01T10:00:05Z"
-      }
-    }
-  }
-}
-```
-
----
-
-## Login with zkID
+## Login
 
 Authenticate using zkID credentials.
 
 ```bash
-POST /api/zkid/login
+POST /api/auth/login
 ```
 
 **Request:**
@@ -137,12 +58,108 @@ POST /api/zkid/login
 **Response:**
 ```json
 {
-  "success": true,
-  "data": {
-    "did": "did:zk:a7Bk9mX2pQ4r",
-    "sessionId": "sess_abc123",
-    "expiresAt": "2025-12-02T10:00:00Z"
+  "message": "Login successful",
+  "user": {
+    "id": "uuid",
+    "username": "alice",
+    "zkId": "did:zk:a7Bk9mX2pQ4r"
   }
+}
+```
+
+---
+
+## Logout
+
+End the current session.
+
+```bash
+POST /api/auth/logout
+```
+
+**Response:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+---
+
+## Get Session
+
+Check current authentication status.
+
+```bash
+GET /api/auth/session
+```
+
+**Response (authenticated):**
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": "uuid",
+    "username": "alice",
+    "zkId": "did:zk:a7Bk9mX2pQ4r",
+    "identityPublicKey": "base64_public_key"
+  }
+}
+```
+
+**Response (not authenticated):**
+```json
+{
+  "authenticated": false
+}
+```
+
+---
+
+## Upgrade Legacy Account
+
+Upgrade account without zkID to full zkID verification.
+
+```bash
+POST /api/auth/upgrade-legacy
+```
+
+**Request:**
+```json
+{
+  "identityPublicKey": "base64_public_key",
+  "identityPrivateKeyEncrypted": "base64_encrypted",
+  "identityPrivateKeyIv": "base64_iv",
+  "kdfSalt": "base64_salt",
+  "kdfIterations": 200000
+}
+```
+
+---
+
+## Submit Starknet Proof
+
+Submit zkID proof to Starknet for on-chain verification.
+
+```bash
+POST /api/starknet/submit-proof
+```
+
+**Request:**
+```json
+{
+  "zkId": "did:zk:a7Bk9mX2pQ4r",
+  "publicKey": "base64_public_key",
+  "signature": "base64_signature"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "txHash": "0x123...",
+  "contractAddress": "0x456..."
 }
 ```
 
@@ -152,8 +169,8 @@ POST /api/zkid/login
 
 | Code | Description |
 |------|-------------|
-| `ZKID_EXISTS` | Username already taken |
-| `ZKID_NOT_FOUND` | zkID doesn't exist |
-| `INVALID_PROOF` | Ed25519 proof verification failed |
-| `CHAIN_ERROR` | On-chain verification failed |
-| `INVALID_PASSWORD` | Password doesn't match |
+| 400 | Username already exists |
+| 401 | Invalid credentials |
+| 401 | Not authenticated |
+| 409 | Proof already exists |
+| 500 | Failed to create zkID |

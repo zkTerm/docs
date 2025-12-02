@@ -1,6 +1,6 @@
 ---
 title: API Overview
-description: 'Complete REST API reference for zkTerm'
+description: 'Complete REST API reference for zkTerm backend'
 ---
 
 ## Base URL
@@ -13,35 +13,67 @@ https://zkterm.io/api/
 
 ## Authentication
 
-Most endpoints require authentication via session cookie or zkID verification.
+Most endpoints require authentication via session cookie. Login first:
 
 ```bash
-# Login first to get session
 POST /api/auth/login
+Content-Type: application/json
+
+{
+  "username": "your_username",
+  "password": "your_password"
+}
 ```
+
+## API Endpoints
+
+### Core APIs
+
+| Route | Description |
+|-------|-------------|
+| `/api/auth` | zkID authentication (register, login, logout) |
+| `/api/wallets` | Wallet management (SOL, Starknet) |
+| `/api/light` | Light Protocol ZK compression |
+| `/api/storage` | zkStorage encrypted file storage |
+| `/api/zk-toolkit` | Cryptographic primitives |
+| `/api/attest` | zkAttest privacy attestations |
+
+### Blockchain APIs
+
+| Route | Description |
+|-------|-------------|
+| `/api/starknet` | Starknet wallet and transfers |
+| `/api/bridge` | Cross-chain bridging (ETH/SOL ↔ Starknet) |
+| `/api/houdini` | HoudiniSwap privacy swaps |
+| `/api/transfer` | ZK proof-based transfers |
+| `/api/proofs` | ZK proof history |
+
+### Utility APIs
+
+| Route | Description |
+|-------|-------------|
+| `/api/rewards` | Trade-to-Earn rewards |
+| `/api/ai` | zkAI chat assistant |
+| `/api/bug-reports` | Bug report submission |
+| `/api/init` | Environment initialization |
 
 ## Response Format
 
-All responses follow this format:
+Success response:
 
 ```json
 {
   "success": true,
-  "data": { ... },
-  "error": null
+  "data": { ... }
 }
 ```
 
-Error responses:
+Error response:
 
 ```json
 {
-  "success": false,
-  "data": null,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Human readable message"
-  }
+  "error": "Error message",
+  "message": "Human readable description"
 }
 ```
 
@@ -49,35 +81,15 @@ Error responses:
 
 | Endpoint Group | Limit |
 |----------------|-------|
-| zkID | 100/min |
-| zkCompression | 50/min |
+| Auth | 20/min |
+| Light Protocol | 50/min |
 | zkToolkit | 200/min |
 | zkStorage | 30/min |
-| zkAuth | 20/min |
-
-## API Modules
-
-<CardGroup cols={2}>
-  <Card title="zkID API" icon="fingerprint" href="/api-reference/zkid">
-    Identity creation and verification
-  </Card>
-  <Card title="zkCompression API" icon="compress" href="/api-reference/zkcompression">
-    Token compression operations
-  </Card>
-  <Card title="zkToolkit API" icon="toolbox" href="/api-reference/zktoolkit">
-    Cryptographic primitives
-  </Card>
-  <Card title="zkStorage API" icon="hard-drive" href="/api-reference/zkstorage">
-    Encrypted file storage
-  </Card>
-  <Card title="zkAuth API" icon="key" href="/api-reference/zkauth">
-    Passwordless authentication
-  </Card>
-</CardGroup>
+| zkAttest | 30/min |
 
 ## Quick Examples
 
-### Hash with Poseidon
+### Poseidon Hash
 
 ```bash
 curl -X POST https://zkterm.io/api/zk-toolkit/hash/poseidon \
@@ -85,18 +97,18 @@ curl -X POST https://zkterm.io/api/zk-toolkit/hash/poseidon \
   -d '{"input": "hello world"}'
 ```
 
-### Field Addition
+### Create Commitment
+
+```bash
+curl -X POST https://zkterm.io/api/zk-toolkit/commit/create \
+  -H "Content-Type: application/json" \
+  -d '{"value": "secret_data"}'
+```
+
+### Field Arithmetic
 
 ```bash
 curl -X POST https://zkterm.io/api/zk-toolkit/field/add \
   -H "Content-Type: application/json" \
   -d '{"a": "5", "b": "7"}'
-```
-
-### EC Scalar Multiplication
-
-```bash
-curl -X POST https://zkterm.io/api/zk-toolkit/ec/mulbase \
-  -H "Content-Type: application/json" \
-  -d '{"scalar": "12345"}'
 ```

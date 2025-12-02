@@ -1,75 +1,34 @@
 ---
 title: zkStorage API
-description: 'API reference for encrypted file storage'
+description: 'API reference for encrypted file storage with ZK proofs'
 ---
 
 ## Upload File
 
-Upload an encrypted file to IPFS with ZK proof.
-
-<ParamField body="file" type="File" required>
-  File to upload (multipart/form-data)
-</ParamField>
-
-<ParamField body="password" type="string" required>
-  Password for encryption
-</ParamField>
+Upload an encrypted file to IPFS via Pinata with Groth16 ZK proof.
 
 ```bash
-POST /api/zk-storage/upload
+POST /api/storage/upload
 Content-Type: multipart/form-data
 ```
+
+**Form Data:**
+- `file`: File to upload (max 100MB)
+- `proof`: Groth16 proof JSON
+- `publicSignals`: Public signals array
+- `commitment`: Password commitment hash
+- `checksum`: SHA-256 file checksum
 
 **Response:**
 ```json
 {
   "success": true,
-  "data": {
-    "cid": "QmXyz123abc456def789...",
-    "filename": "document.pdf",
-    "size": 1234567,
-    "proof": {
-      "pi_a": [...],
-      "pi_b": [...],
-      "pi_c": [...],
-      "protocol": "groth16"
-    },
-    "checksum": "sha256:abc123..."
-  }
-}
-```
-
----
-
-## Download File
-
-Download and decrypt a file from IPFS.
-
-<ParamField body="cid" type="string" required>
-  IPFS Content Identifier
-</ParamField>
-
-<ParamField body="password" type="string" required>
-  Password for decryption
-</ParamField>
-
-```bash
-POST /api/zk-storage/download
-```
-
-**Request:**
-```json
-{
+  "id": "file_uuid",
   "cid": "QmXyz123abc456def789...",
-  "password": "secure_password"
+  "filename": "document.pdf",
+  "size": 1234567,
+  "checksum": "sha256:abc123..."
 }
-```
-
-**Response:** Binary file data with headers:
-```
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="document.pdf"
-X-Checksum: sha256:abc123...
 ```
 
 ---
@@ -79,73 +38,40 @@ X-Checksum: sha256:abc123...
 Get list of uploaded files for current user.
 
 ```bash
-GET /api/zk-storage/list
+GET /api/storage/list
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "data": {
-    "files": [
-      {
-        "cid": "QmXyz123...",
-        "filename": "document.pdf",
-        "size": 1234567,
-        "uploadedAt": "2025-12-01T10:00:00Z",
-        "checksum": "sha256:abc123..."
-      },
-      {
-        "cid": "QmAbc456...",
-        "filename": "image.png",
-        "size": 500000,
-        "uploadedAt": "2025-11-30T15:30:00Z",
-        "checksum": "sha256:def456..."
-      }
-    ]
-  }
+  "files": [
+    {
+      "id": "file_uuid",
+      "cid": "QmXyz123...",
+      "filename": "document.pdf",
+      "size": 1234567,
+      "createdAt": "2025-12-01T10:00:00Z",
+      "checksum": "sha256:abc123..."
+    }
+  ]
 }
 ```
 
 ---
 
-## Verify Proof
+## Download File
 
-Verify ZK proof for a file without downloading.
-
-<ParamField body="cid" type="string" required>
-  IPFS Content Identifier
-</ParamField>
-
-<ParamField body="proof" type="object" required>
-  Groth16 proof object
-</ParamField>
+Download a file from IPFS.
 
 ```bash
-POST /api/zk-storage/verify
+GET /api/storage/download/:cid
 ```
 
-**Request:**
-```json
-{
-  "cid": "QmXyz123abc456def789...",
-  "proof": {
-    "pi_a": [...],
-    "pi_b": [...],
-    "pi_c": [...]
-  }
-}
+**Response:** Binary file data with headers:
 ```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "valid": true,
-    "cid": "QmXyz123..."
-  }
-}
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="document.pdf"
 ```
 
 ---
@@ -154,73 +80,32 @@ POST /api/zk-storage/verify
 
 Unpin a file from IPFS (removes from Pinata).
 
-<ParamField path="cid" type="string" required>
-  IPFS Content Identifier
-</ParamField>
-
 ```bash
-DELETE /api/zk-storage/:cid
+DELETE /api/storage/:id
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-  "data": {
-    "deleted": true,
-    "cid": "QmXyz123..."
-  }
+  "deleted": true
 }
 ```
 
 ---
 
-## Get File Metadata
-
-Get metadata for a file without downloading.
-
-```bash
-GET /api/zk-storage/:cid/metadata
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "cid": "QmXyz123...",
-    "filename": "document.pdf",
-    "size": 1234567,
-    "mimeType": "application/pdf",
-    "uploadedAt": "2025-12-01T10:00:00Z",
-    "checksum": "sha256:abc123...",
-    "encrypted": true
-  }
-}
-```
-
----
-
-## Share File
+## Create Share Link
 
 Generate a shareable link for a file.
 
-<ParamField body="cid" type="string" required>
-  IPFS Content Identifier
-</ParamField>
-
-<ParamField body="expiresIn" type="number">
-  Link expiry in hours (default: 24)
-</ParamField>
-
 ```bash
-POST /api/zk-storage/share
+POST /api/storage/share
 ```
 
 **Request:**
 ```json
 {
-  "cid": "QmXyz123abc456def789...",
+  "fileId": "file_uuid",
   "expiresIn": 48
 }
 ```
@@ -229,11 +114,62 @@ POST /api/zk-storage/share
 ```json
 {
   "success": true,
-  "data": {
-    "shareUrl": "https://zkterm.io/share/abc123token",
-    "expiresAt": "2025-12-03T10:00:00Z",
-    "token": "abc123token"
+  "shareToken": "abc123token",
+  "shareUrl": "https://zkterm.io/share/abc123token",
+  "expiresAt": "2025-12-03T10:00:00Z"
+}
+```
+
+---
+
+## Access Shared File
+
+Access a file via share link.
+
+```bash
+GET /api/storage/shared/:token
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "file": {
+    "cid": "QmXyz123...",
+    "filename": "document.pdf",
+    "size": 1234567
   }
+}
+```
+
+---
+
+## Verify ZK Proof
+
+Verify Groth16 proof for a file.
+
+```bash
+POST /api/storage/verify
+```
+
+**Request:**
+```json
+{
+  "proof": {
+    "pi_a": [...],
+    "pi_b": [...],
+    "pi_c": [...]
+  },
+  "publicSignals": ["commitment_hash"],
+  "commitment": "expected_commitment"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "valid": true
 }
 ```
 
@@ -244,8 +180,8 @@ POST /api/zk-storage/share
 | Code | Description |
 |------|-------------|
 | `FILE_TOO_LARGE` | File exceeds max size (100MB) |
-| `INVALID_PASSWORD` | Decryption failed - wrong password |
+| `INVALID_PROOF` | ZK proof verification failed |
 | `CID_NOT_FOUND` | File not found on IPFS |
-| `PROOF_INVALID` | ZK proof verification failed |
 | `CHECKSUM_MISMATCH` | File integrity check failed |
 | `SHARE_EXPIRED` | Share link has expired |
+| `PINATA_ERROR` | Pinata API error |

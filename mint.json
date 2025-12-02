@@ -22,18 +22,10 @@
       "url": "https://zkterm.io/terminal"
     }
   ],
-  "topbarCtaButton": {
-    "name": "Launch App",
-    "url": "https://zkterm.io"
-  },
   "tabs": [
     {
       "name": "API Reference",
       "url": "api-reference"
-    },
-    {
-      "name": "Guides",
-      "url": "guides"
     }
   ],
   "anchors": [
@@ -84,16 +76,6 @@
         "integrations/pinata",
         "integrations/crust",
         "integrations/x402"
-      ]
-    },
-    {
-      "group": "Guides",
-      "pages": [
-        "guides/zkid-integration",
-        "guides/compression-workflow",
-        "guides/file-encryption",
-        "guides/zk-proofs",
-        "guides/api-integration"
       ]
     },
     {
