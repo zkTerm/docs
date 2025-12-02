@@ -1,4 +1,3 @@
-
 ---
 title: 'FAQ'
 description: 'Frequently asked questions about zkTerm'
@@ -6,145 +5,108 @@ description: 'Frequently asked questions about zkTerm'
 
 ## General
 
-<AccordionGroup>
-  <Accordion title="What is zkTerm?">
-    zkTerm is a universal zero-knowledge terminal that unifies the entire ZK ecosystem. It provides cryptographic primitives, identity solutions, file encryption, and blockchain compression in one CLI.
-  </Accordion>
+**1. What is zkTerm?**
 
-  <Accordion title="Is zkTerm free to use?">
-    Yes! zkTerm is free to use. You only pay blockchain gas fees for on-chain operations (Solana/Starknet transactions).
-  </Accordion>
+zkTerm is a universal zero-knowledge terminal that unifies the entire ZK ecosystem into one interface. It provides identity, encrypted storage, token compression, and cryptographic tools - all accessible from a single terminal.
 
-  <Accordion title="Which blockchains does zkTerm support?">
-    - Solana (mainnet & devnet)
-    - Starknet (mainnet & sepolia)
-    - Zcash (coming soon)
-  </Accordion>
+**2. Is zkTerm free to use?**
 
-  <Accordion title="Do I need to install anything?">
-    No installation required! Access the terminal at [zkterm.io/terminal](https://zkterm.io/terminal). For API integration, install npm packages.
-  </Accordion>
-</AccordionGroup>
+Yes, zkTerm is free to use. You only pay blockchain gas fees for on-chain operations (Solana/Starknet transactions). Premium features like large file storage (zkStorage) and AI assistant (zkAI) will require credits via x402 payment system (in development).
 
-## zkID
+**3. Which blockchains does zkTerm support?**
 
-<AccordionGroup>
-  <Accordion title="What is a zkID?">
-    zkID is a privacy-preserving universal identity with format `did:zk:[12 chars]`. It uses Ed25519 cryptography and is verified on both Solana and Starknet.
-  </Accordion>
+- Solana Mainnet - Live
+- Starknet Mainnet & Sepolia - Live
+- Zcash - On the roadmap
 
-  <Accordion title="Can I recover my zkID if I forget my password?">
-    No. zkID uses client-side encryption with no password recovery. Keep your credentials safe!
-  </Accordion>
+**4. Do I need to install anything?**
 
-  <Accordion title="How is zkID different from wallet addresses?">
-    zkID is chain-agnostic and privacy-focused. It works across multiple blockchains without exposing transaction history.
-  </Accordion>
+No installation required. Access the terminal directly at [zkterm.io/terminal](https://zkterm.io/terminal). For developers, npm packages are available for API integration.
 
-  <Accordion title="Can I use one zkID across multiple applications?">
-    Yes! zkID is designed for universal identity across all ZK-compatible applications.
-  </Accordion>
-</AccordionGroup>
+**5. How do I get started?**
 
-## zkStorage
+1. Visit [zkterm.io/terminal](https://zkterm.io/terminal)
+2. Type `zk help` to see available commands
+3. Create a zkID with `zk id register`
+4. Start exploring features
 
-<AccordionGroup>
-  <Accordion title="How secure is zkStorage?">
-    Files are encrypted client-side with AES-256-GCM. Password verification uses Groth16 zkSNARKs. Files are stored on IPFS for decentralization.
-  </Accordion>
+## Features
 
-  <Accordion title="What's the maximum file size?">
-    Current limit is 100MB per file due to IPFS gateway constraints.
-  </Accordion>
+**6. What features are available?**
 
-  <Accordion title="Can I delete uploaded files?">
-    Files on IPFS are permanent. You can unpin them from Pinata, but they may exist on other IPFS nodes.
-  </Accordion>
+| Feature | Description | Status |
+|---------|-------------|--------|
+| zkID | Universal privacy-preserving identity (`did:zk` format) | Live |
+| zkCompression | Light Protocol for Solana token compression | Live |
+| zkToolkit | 10-module cryptographic primitives library | Live |
+| zkStorage | Encrypted IPFS storage with zkSNARK proofs | Live |
+| zkAuth | Passwordless social login with STARK proofs | In Development |
 
-  <Accordion title="How do I share encrypted files?">
-    Use `zk storage share <cid>` to generate a shareable link with embedded password (encrypted).
-  </Accordion>
-</AccordionGroup>
+**7. What can I do with zkTerm?**
 
-## zkCompression
+- Create and manage privacy-preserving identity (zkID)
+- Compress tokens to save 5000x on storage costs
+- Upload encrypted files to IPFS
+- Generate ZK proofs and cryptographic operations
+- Manage Solana and Starknet wallets
+- Bridge tokens between chains via StarkGate
 
-<AccordionGroup>
-  <Accordion title="How much can I save with compression?">
-    Up to 1000x reduction in storage costs. Creating a compressed token account costs ~120k lamports vs ~2M lamports for standard SPL.
-  </Accordion>
+**8. Which terminal commands are available?**
 
-  <Accordion title="Are compressed tokens compatible with standard wallets?">
-    Compressed tokens require Light Protocol-compatible wallets. Most standard wallets won't show compressed balances.
-  </Accordion>
+Type `zk help` in the terminal for the full command list. Main categories:
 
-  <Accordion title="Can I decompress tokens back to standard SPL?">
-    Yes! Use `decompress <mint> <amount>` to convert back.
-  </Accordion>
+- `zk id` - Identity operations
+- `zk light` - Token compression
+- `zk storage` - Encrypted file storage
+- `zk toolkit` - Cryptographic primitives
+- `zk wallet` - Wallet management
+- `zk starknet` - Starknet operations
 
-  <Accordion title="Does compression affect token functionality?">
-    No. Compressed tokens work exactly like standard SPL tokens but with massively reduced storage costs.
-  </Accordion>
-</AccordionGroup>
+## Security
 
-## zkToolkit
+**9. Are my private keys safe?**
 
-<AccordionGroup>
-  <Accordion title="What cryptographic primitives are available?">
-    10 modules: hash, commit, merkle, range, sign, nullifier, field, ec, shamir, proof. See [zkToolkit docs](/zk-ecosystem/zktoolkit).
-  </Accordion>
+Yes. All private keys are generated and stored client-side. They never leave your device. Keys are encrypted with your password before storage.
 
-  <Accordion title="Can I use zkToolkit in production?">
-    Yes! All primitives use battle-tested libraries (circomlibjs, snarkjs) and are production-ready.
-  </Accordion>
+**10. What encryption does zkTerm use?**
 
-  <Accordion title="How fast is proof generation?">
-    Groth16 proofs take ~5-10 seconds. STARK proofs take ~2-5 seconds. Ed25519 signatures are near-instant.
-  </Accordion>
+- File encryption: AES-256-GCM (client-side)
+- Signatures: Ed25519
+- Password verification: Groth16 zkSNARKs
+- On-chain proofs: STARK (Starknet)
 
-  <Accordion title="Can I create custom ZK circuits?">
-    Yes! You can write custom circom circuits and use zkTerm's proof generation infrastructure.
-  </Accordion>
-</AccordionGroup>
+**11. Can I recover my account if I forget my password?**
 
-## Technical
+No. zkTerm uses client-side encryption with no password recovery mechanism. Keep your password and seed phrases safe.
 
-<AccordionGroup>
-  <Accordion title="What ZK proof systems does zkTerm use?">
-    - Groth16 for zkStorage password verification
-    - STARK for zkID on Starknet
-    - Ed25519 for digital signatures
-  </Accordion>
+## Payments
 
-  <Accordion title="How are proofs verified on-chain?">
-    Solana: Direct Ed25519 signature verification
-    Starknet: Cairo smart contract verifies STARK proofs
-  </Accordion>
+**12. What is x402?**
 
-  <Accordion title="Can I audit the smart contracts?">
-    Yes! Contracts are open source:
-    - Starknet: `contracts/starknet/src/lib.cairo`
-    - GitHub: github.com/zkterm
-  </Accordion>
+x402 is zkTerm's internal payment system (in development) for resource-consuming features:
 
-  <Accordion title="What's the tech stack?">
-    - Frontend: React, TypeScript, Vite, XTerm
-    - Backend: Express.js, PostgreSQL
-    - Blockchain: Solana, Starknet
-    - ZK: circomlibjs, snarkjs, starknet.js
-  </Accordion>
-</AccordionGroup>
+- zkStorage - Pay for IPFS storage costs
+- zkAI - Pay for AI assistant token usage
 
-## Troubleshooting
+Payments accepted in ZKTR, SOL, and USDC.
 
-See [Troubleshooting Guide](/resources/troubleshooting) for common issues and solutions.
+**13. Is there a free tier?**
+
+Yes. New users get free allowances:
+
+- zkStorage: 10 MB total
+- zkAI: 100 queries
 
 ## Support
 
-<CardGroup cols={2}>
-  <Card title="Twitter" icon="x-twitter" href="https://x.com/zkterm">
-    Follow for updates
-  </Card>
-  <Card title="GitHub" icon="github" href="https://github.com/zkterm">
-    Report issues
-  </Card>
-</CardGroup>
+**14. Where can I get help?**
+
+- Twitter/X: [@zkterm](https://x.com/zkterm)
+- GitHub: [github.com/zkterm](https://github.com/zkterm)
+- Bug reports: Use `zk bug report` in the terminal
+
+**15. Where can I report bugs?**
+
+Use the bug report feature in the terminal or open an issue on GitHub.
+
+See [Troubleshooting Guide](/resources/troubleshooting) for common issues and solutions.

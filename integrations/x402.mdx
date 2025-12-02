@@ -1,190 +1,230 @@
 ---
 title: x402
-description: 'Payment protocol for API monetization'
+description: 'Internal payment system for zkStorage and zkAI services'
 ---
 
 ## Overview
 
-x402 is a payment protocol that enables pay-per-request API access using HTTP 402 Payment Required responses. It allows zkTerm to monetize API access while providing seamless micropayments.
+x402 is zkTerm's internal payment system that handles crypto payments for resource-consuming features like zkStorage (IPFS costs) and zkAI assistant (AI token usage).
 
-**Status:** Planned Integration
+**Status:** In Development
+
+**Note:** All pricing shown below are examples only and subject to change before launch.
+
+## Supported Services
+
+| Service | What You Pay For | Cost Driver |
+|---------|------------------|-------------|
+| **zkStorage** | IPFS file storage and pinning | Pinata API costs |
+| **zkAI** | AI assistant responses | OpenAI token usage |
+
+## Payment Methods
+
+x402 accepts cryptocurrency payments:
+
+| Token | Network | Status |
+|-------|---------|--------|
+| **ZKTR** | Solana | Primary |
+| **SOL** | Solana | Supported |
+| **USDC** | Solana | Supported |
+
+ZKTR is zkTerm's native token used for platform payments and governance.
 
 ## How It Works
 
-x402 uses the HTTP 402 status code for payment negotiation:
-
 ```
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│   Client    │      │   zkTerm    │      │   Payment   │
-│             │      │    API      │      │   Network   │
+│    User     │      │   zkTerm    │      │  External   │
+│   Wallet    │      │   x402      │      │  Services   │
 ├─────────────┤      ├─────────────┤      ├─────────────┤
-│ 1. Request  │ ───> │ 2. 402      │      │             │
-│    /api/... │ <─── │    Payment  │      │             │
-│             │      │    Required │      │             │
-│ 3. Pay      │ ─────────────────────────>│ 4. Verify   │
-│ 5. Request  │ ───> │ 6. Process  │ <─── │    payment  │
-│    + proof  │ <─── │    response │      │             │
+│ 1. Pay ZKTR │ ───> │ 2. Credit   │ ───> │ 3. Pinata   │
+│    or SOL   │      │    account  │      │    OpenAI   │
+│             │ <─── │ 4. Deduct   │ <─── │ 5. Response │
+│             │      │    balance  │      │             │
 └─────────────┘      └─────────────┘      └─────────────┘
 ```
 
-## Planned Features
+## zkStorage Payments
 
-### Pay-Per-Request
+When you upload files to zkStorage, x402 handles the payment:
 
-Access premium API endpoints with micropayments:
+1. File encrypted client-side
+2. x402 checks your credit balance
+3. Upload processed via Pinata
+4. Credits deducted based on file size
 
-| Endpoint | Price |
-|----------|-------|
-| `/api/zk-toolkit/proof/generate` | 0.001 USDC |
-| `/api/storage/upload` (>10MB) | 0.01 USDC |
-| `/api/ai/generate` | 0.005 USDC |
+**Pricing (example only, subject to change):**
 
-### Token Gating
+| File Size | Cost |
+|-----------|------|
+| Up to 10 MB | Free |
+| 10 MB - 100 MB | 0.1 ZKTR |
+| 100 MB - 1 GB | 1 ZKTR |
+| 1 GB+ | 10 ZKTR |
 
-Access control based on token holdings:
+## zkAI Payments
 
+AI assistant usage is metered by token consumption:
+
+1. You send a message to zkAI
+2. x402 checks your credit balance
+3. Request sent to AI provider
+4. Credits deducted based on tokens used
+
+**Pricing (example only, subject to change):**
+
+| Usage | Cost |
+|-------|------|
+| Simple query | 0.01 ZKTR |
+| Code generation | 0.05 ZKTR |
+| Long conversation | 0.1 ZKTR |
+
+## Terminal Commands
+
+### Check Balance
+
+```bash
+zk credits balance
+```
+
+**Output:**
+```
+x402 CREDITS
+
+  ZKTR Balance:  125.50 ZKTR
+  SOL Balance:   2.5 SOL
+  
+  Estimated Usage:
+  - ~1,255 zkStorage uploads (10MB)
+  - ~12,550 zkAI queries
+```
+
+### Add Credits
+
+```bash
+zk credits add <amount> --token ZKTR
+```
+
+**Example:**
+```bash
+> zk credits add 100 --token ZKTR
+
+ADDING CREDITS
+
+  Amount:     100 ZKTR
+  From:       Your connected wallet
+  
+  Confirm? (y/n): y
+  
+  Transaction:  5abc...def
+  New Balance:  225.50 ZKTR
+```
+
+### View Usage History
+
+```bash
+zk credits history
+```
+
+**Output:**
+```
+USAGE HISTORY
+
+  Date        Service      Amount    Balance
+  ─────────────────────────────────────────
+  Dec 02      zkStorage    -0.1      225.40
+  Dec 02      zkAI         -0.05     225.35
+  Dec 01      zkStorage    -1.0      225.40
+  Dec 01      Add Credits  +100      226.40
+```
+
+## API Reference
+
+### Get Balance
+
+```bash
+GET /api/x402/balance
+```
+
+**Response:**
 ```json
 {
-  "endpoint": "/api/premium/*",
-  "requirements": {
-    "token": "ZKTERM",
-    "minBalance": 100
-  }
+  "zktr": "125.50",
+  "sol": "2.5",
+  "usdc": "0"
 }
 ```
 
-### Revenue Sharing
-
-Automatic distribution to contributors:
-
-- 70% to zkTerm treasury
-- 20% to feature developers
-- 10% to community fund
-
-## Planned Terminal Commands
+### Add Credits
 
 ```bash
-# Check payment balance
-zk pay balance
-
-# Add funds
-zk pay deposit <amount> --token USDC
-
-# View payment history
-zk pay history
-
-# Enable auto-pay
-zk pay auto --max 1.00
-```
-
-## Planned API Integration
-
-### Payment Required Response
-
-```bash
-GET /api/zk-toolkit/proof/generate
-
-HTTP/1.1 402 Payment Required
-X-Payment-Required: 0.001 USDC
-X-Payment-Address: 0x1234...
-X-Payment-Network: base
-X-Payment-Expires: 300
-```
-
-### Request with Payment
-
-```bash
-POST /api/zk-toolkit/proof/generate
-X-Payment-Proof: base64-encoded-proof
+POST /api/x402/deposit
 Content-Type: application/json
 
-{ "inputs": { "a": 5, "b": 7 } }
+{
+  "amount": "100",
+  "token": "ZKTR",
+  "txSignature": "5abc...def"
+}
 ```
 
-## Supported Payment Networks
-
-| Network | Token | Status |
-|---------|-------|--------|
-| Base | USDC | Planned |
-| Solana | USDC | Planned |
-| Starknet | USDC | Planned |
-
-## Architecture
-
-### Payment Flow
-
-1. Client requests protected endpoint
-2. Server returns 402 with payment details
-3. Client pays via supported network
-4. Client includes payment proof in retry
-5. Server verifies payment and processes request
-
-### Verification
-
-Payment proofs verified via:
-
-- Transaction hash lookup
-- Merkle proof verification
-- Zero-knowledge payment proofs (privacy option)
-
-## Benefits
-
-### For Users
-
-1. **No Subscriptions** - Pay only for what you use
-2. **Privacy** - ZK payment proofs hide transaction details
-3. **Flexibility** - Multiple payment networks supported
-
-### For zkTerm
-
-1. **Sustainable Revenue** - Direct monetization without ads
-2. **Metered Access** - Prevent abuse of expensive operations
-3. **Fair Pricing** - Usage-based pricing model
-
-## Use Cases
-
-### Premium ZK Operations
-
-CPU-intensive operations like proof generation:
+### Get Usage History
 
 ```bash
-# Free: Simple hash
-zk toolkit hash poseidon "hello"
-
-# Paid: Full proof generation
-zk toolkit proof generate --inputs "a=5,b=7"
+GET /api/x402/history?limit=10
 ```
 
-### Large File Storage
-
-Storage beyond free tier:
-
-```bash
-# Free: Up to 10MB
-zk storage upload small-file.pdf
-
-# Paid: Larger files
-zk storage upload large-file.zip  # 100MB, 0.01 USDC
+**Response:**
+```json
+{
+  "transactions": [
+    {
+      "date": "2024-12-02T10:30:00Z",
+      "service": "zkStorage",
+      "amount": "-0.1",
+      "balance": "225.40",
+      "details": "upload: document.pdf (15MB)"
+    }
+  ]
+}
 ```
 
-### AI Features
+## Credit System
 
-AI-powered operations:
+### How Credits Work
 
-```bash
-# Paid: AI assistance
-zkAI analyze "What does this contract do?"
-```
+1. **Deposit** - Send ZKTR/SOL/USDC to your zkTerm account
+2. **Internal Balance** - Credits tracked in zkTerm database
+3. **Usage Deduction** - Automatic deduction when using paid services
+4. **Withdraw** - Withdraw unused credits back to wallet
 
-## Roadmap
+### Free Tier
 
-1. **Phase 1:** Payment infrastructure setup
-2. **Phase 2:** Base network integration
-3. **Phase 3:** Multi-network support
-4. **Phase 4:** ZK payment proofs for privacy
+New users get free credits to try zkTerm:
 
-## Resources
+| Service | Free Allowance |
+|---------|----------------|
+| zkStorage | 10 MB total |
+| zkAI | 100 queries |
 
-- [HTTP 402 Specification](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402)
-- [Base Network](https://base.org)
-- [USDC](https://www.circle.com/en/usdc)
+### ZKTR Benefits
+
+Paying with ZKTR provides:
+
+1. **10% Discount** - Lower rates vs SOL/USDC
+2. **Priority Processing** - Faster uploads and AI responses
+3. **Governance Rights** - Vote on zkTerm features
+
+## Security
+
+1. **Non-Custodial** - You control your wallet, we only track credits
+2. **Transparent Pricing** - All costs shown before confirmation
+3. **Audit Trail** - Full transaction history available
+4. **Refunds** - Unused credits can be withdrawn anytime
+
+## Future Features
+
+1. **Subscription Plans** - Monthly unlimited tiers
+2. **Team Accounts** - Shared credit pools
+3. **Staking Rewards** - Earn credits by staking ZKTR
+4. **Referral Program** - Earn credits for inviting users

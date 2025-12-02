@@ -14,7 +14,7 @@ zkTerm integrates with multiple external services and protocols to provide a com
 | **Starknet** | L2 blockchain for zkID proofs and STRK transfers | Live |
 | **Pinata** | IPFS pinning service for zkStorage | Live |
 | **Crust Network** | Decentralized storage layer | Planned |
-| **x402** | Payment protocol for monetization | Planned |
+| **x402** | Internal payment system for zkStorage and zkAI | Planned |
 
 ## Starknet
 
@@ -48,27 +48,23 @@ Crust Network provides decentralized storage guarantees on top of IPFS:
 
 ## x402
 
-x402 is a payment protocol for API monetization:
+x402 is zkTerm's internal payment system for resource-consuming features:
 
-1. **Pay-Per-Request** - Micropayments for API calls
-2. **Token Gating** - Access control based on token holdings
-3. **Revenue Sharing** - Automatic distribution to contributors
+1. **zkStorage Payments** - Pay for IPFS storage and Pinata pinning costs
+2. **zkAI Credits** - Pay for AI assistant token usage
+3. **Crypto Payments** - ZKTR token and other supported cryptocurrencies
 
 [View x402 Integration](/integrations/x402)
 
 ## Integration Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                      zkTerm                              │
-├─────────────────────────────────────────────────────────┤
-│  zkID        zkStorage      zkCompression    zkToolkit  │
-├─────────────────────────────────────────────────────────┤
-│              INTEGRATION LAYER                           │
-├──────────┬──────────┬──────────┬────────────────────────┤
-│ Starknet │  Pinata  │  Crust   │         x402           │
-│  (L2)    │  (IPFS)  │ (Storage)│       (Payments)       │
-└──────────┴──────────┴──────────┴────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                   INTEGRATION LAYER                       │
+├──────────┬──────────┬──────────┬─────────────────────────┤
+│ Starknet │  Pinata  │  Crust   │          x402           │
+│  (zkID)  │(zkStorage)│(zkStorage)│   (zkStorage + zkAI)  │
+└──────────┴──────────┴──────────┴─────────────────────────┘
 ```
 
 ## Environment Variables
@@ -80,4 +76,4 @@ Each integration requires specific environment variables:
 | Starknet | `STARKNET_RPC_URL`, `STARKNET_PRIVATE_KEY` |
 | Pinata | `PINATA_JWT` |
 | Crust | `CRUST_API_KEY` (planned) |
-| x402 | `X402_API_KEY` (planned) |
+| x402 | Wallet-based (no API key needed) |
