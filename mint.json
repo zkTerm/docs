@@ -43,11 +43,6 @@
       "url": "https://github.com/zkterm"
     },
     {
-      "name": "Discord",
-      "icon": "discord",
-      "url": "https://discord.gg/zkterm"
-    },
-    {
       "name": "Twitter",
       "icon": "x-twitter",
       "url": "https://x.com/zkterm"
@@ -104,8 +99,7 @@
   ],
   "footerSocials": {
     "x": "https://x.com/zkterm",
-    "github": "https://github.com/zkterm",
-    "discord": "https://discord.gg/zkterm"
+    "github": "https://github.com/zkterm"
   },
   "analytics": {
     "ga4": {
