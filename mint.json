@@ -52,7 +52,9 @@
     {
       "group": "Getting Started",
       "pages": [
-        "introduction"
+        "introduction",
+        "key-features",
+        "use-cases"
       ]
     },
     {

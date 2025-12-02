@@ -1,0 +1,26 @@
+---
+title: "Key Features"
+description: "Explore zkTerm's key features for privacy and zero-knowledge operations"
+---
+
+In this section, we provide an overview of **key features** that make zkTerm a comprehensive solution for privacy and zero-knowledge operations.
+
+### Key Features
+
+1. **Privacy-Preserving Universal Identity (zkID):** zkTerm provides a universal decentralized identity system that works across multiple blockchains. Your zkID follows the `did:zk` standard and uses Ed25519 cryptography for proof generation. Once created, your identity is verified on-chain (Solana and Starknet) without exposing any personal information. This enables you to prove who you are across different platforms while maintaining complete privacy.
+
+2. **Zero-Knowledge Compressed Tokens (zkCompression):** Through integration with Light Protocol, zkTerm enables ZK compression on Solana that can reduce token storage costs by up to 1000x. Compressed tokens maintain full functionality - you can transfer, trade, and decompress them at any time. This makes microtransactions and large-scale token distributions economically viable while adding a layer of privacy to your holdings.
+
+3. **Encrypted Decentralized Storage (zkStorage):** zkTerm provides client-side AES-256-GCM encryption for all files before they're uploaded to IPFS via Pinata. Real Groth16 zkSNARK proofs verify password knowledge without revealing it. Only you can decrypt your files - not zkTerm, not IPFS nodes, not anyone else. Files are pinned permanently and accessible from anywhere with your encryption key.
+
+4. **Complete Cryptographic Toolkit (zkToolkit):** The @zkterm/zktoolkit package provides 10 production-ready cryptographic modules: hash (Poseidon, Pedersen, MiMC), commit (Pedersen commitments), merkle (sparse Merkle trees), range (range proofs), sign (EdDSA, Schnorr), nullifier (double-spend prevention), field (finite field arithmetic), ec (elliptic curves), shamir (secret sharing), and proof (Groth16, PLONK). All modules are TypeScript-native with zero external dependencies.
+
+5. **Passwordless Authentication (zkAuth):** Coming soon - zkAuth will enable login with Google, GitHub, or other OAuth providers without traditional passwords or seed phrases. Using STARK proofs on Starknet, your authentication is cryptographically verified without exposing credentials. This bridges the gap between Web2 convenience and Web3 security.
+
+6. **Visual Dashboard (Explorer):** The zkTerm Explorer provides a unified view of your entire ZK ecosystem - wallet balances, token portfolios (including compressed tokens), zkStorage files, zkID verification status, and transaction history. Access everything visually without needing to use CLI commands.
+
+7. **Interactive Terminal Interface:** A professional XTerm.js-based terminal with command history, cursor navigation, ANSI styling, and tab completion. The terminal includes a dual-mode zkAI assistant that can help you with commands and answer questions about zero-knowledge technology.
+
+8. **Multi-Chain Architecture:** zkTerm is designed to work across multiple blockchains. Currently fully integrated with Solana, with Starknet support active for zkID verification. Zcash integration is on the roadmap. Your zkID and proofs work seamlessly across all supported chains.
+
+Through these features, zkTerm aims to unify the fragmented zero-knowledge ecosystem into a single, accessible terminal - making privacy technology available to everyone, not just cryptography experts.
