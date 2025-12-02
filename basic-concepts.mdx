@@ -1,0 +1,28 @@
+---
+title: "Basic Concepts"
+description: "Fundamental zero-knowledge concepts you need to understand before using zkTerm"
+---
+
+This section covers the foundational concepts behind zero-knowledge technology. Understanding these basics will help you get the most out of zkTerm.
+
+### Basic Concepts
+
+1. **Zero-Knowledge Proofs:** A zero-knowledge proof allows one party (the prover) to convince another party (the verifier) that a statement is true without revealing any information beyond the validity of the statement itself. For example, you can prove you know a password without ever showing the password.
+
+2. **Cryptographic Commitments:** A commitment scheme lets you "lock in" a value without revealing it. Later, you can open the commitment to prove what value you committed to. This is like putting a message in a sealed envelope - you can't change it, but no one can read it until you open it.
+
+3. **Merkle Trees:** A data structure that allows efficient verification of large datasets. Each piece of data is hashed, and hashes are combined pairwise up to a single root hash. You can prove any piece of data belongs to the tree by providing a short "proof path" without revealing other data.
+
+4. **Hash Functions:** One-way functions that convert any input into a fixed-size output. The same input always produces the same hash, but you cannot reverse the process to find the input from the hash. zkTerm uses SHA-256 and Poseidon hash functions.
+
+5. **Nullifiers:** Unique identifiers derived from secret values that prevent double-spending or double-use. When you use a nullifier, it gets recorded publicly, so the same secret cannot be used twice - but the secret itself remains hidden.
+
+6. **zkSNARKs:** Succinct Non-Interactive Arguments of Knowledge. These are compact proofs that can be verified quickly without any back-and-forth communication between prover and verifier. zkTerm uses Groth16 proofs for file verification.
+
+7. **Elliptic Curve Cryptography:** The mathematical foundation for many ZK systems. Points on special curves enable secure key generation, signatures, and proof systems. zkTerm supports both Ed25519 (for Solana) and STARK curves (for Starknet).
+
+8. **Field Arithmetic:** Zero-knowledge proofs operate over finite fields - sets of numbers where arithmetic "wraps around" at a prime number. All ZK computations happen in these fields, which is why zkToolkit includes field arithmetic modules.
+
+9. **Secret Sharing:** Splitting a secret into multiple pieces so that only a threshold of pieces can reconstruct the original. Shamir's Secret Sharing, available in zkToolkit, lets you distribute trust among multiple parties.
+
+10. **Range Proofs:** Proving that a number falls within a certain range without revealing the exact value. Useful for age verification, balance checks, and similar scenarios where you need to prove "greater than" or "less than" without exposure.

@@ -1,3 +1,4 @@
+
 {
   "$schema": "https://mintlify.com/schema.json",
   "name": "zkTerm Documentation",
@@ -49,8 +50,20 @@
   ],
   "navigation": [
     {
+      "group": "Introduction",
+      "pages": [
+        "introduction",
+        "key-features",
+        "real-world-applications",
+        "basic-concepts"
+      ]
+    },
+    {
       "group": "Getting Started",
-      "pages": ["introduction", "key-features", "real-world-applications"]
+      "pages": [
+        "getting-started/how-to-use-docs",
+        "getting-started/architecture-overview"
+      ]
     },
     {
       "group": "ZK Ecosystem",

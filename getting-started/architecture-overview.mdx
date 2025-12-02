@@ -1,0 +1,28 @@
+---
+title: "Architecture Overview"
+description: "Understanding how zkTerm components work together"
+---
+
+This section explains the technical architecture of zkTerm - how different components interact and why they're designed this way.
+
+### Architecture Overview
+
+1. **Terminal Interface:** The core user interface is an XTerm.js-based terminal running in the browser. Commands are parsed client-side and routed to appropriate handlers. The terminal maintains session state, command history, and provides ANSI color output for a native terminal experience.
+
+2. **Client-Side Cryptography:** All sensitive cryptographic operations happen in your browser, never on our servers. Key generation, proof creation, file encryption, and signature generation use JavaScript/TypeScript implementations. Your private keys and secrets never leave your device.
+
+3. **zkID System:** Identity is built on Ed25519 key pairs derived from your password using BIP39 mnemonics. The deterministic derivation means the same password always produces the same identity. Proofs are generated client-side and verified on-chain (Solana and Starknet).
+
+4. **Backend API:** An Express.js server handles non-sensitive operations - user session management, database queries, and coordination between services. The backend never sees private keys or unencrypted data. All API endpoints use standard REST conventions.
+
+5. **Database Layer:** PostgreSQL stores user metadata, attestation records, transfer logs, and other persistent data. Drizzle ORM provides type-safe database access. Sensitive data is always encrypted before storage.
+
+6. **Blockchain Integration:** Direct RPC connections to Solana (via Helius) and Starknet. On-chain operations include zkID registration, proof verification, and compressed token transfers via Light Protocol. Multi-RPC fallback ensures reliability.
+
+7. **zkStorage System:** Files are encrypted client-side using AES-256-GCM before upload. Encrypted blobs are stored on IPFS via Pinata. zkSNARK proofs (Groth16) verify password knowledge without revealing the password. Only you can decrypt your files.
+
+8. **zkToolkit Package:** A standalone TypeScript library providing cryptographic primitives - hash functions, commitments, Merkle trees, range proofs, signatures, nullifiers, field arithmetic, elliptic curves, secret sharing, and proof generation. Published to npm for external use.
+
+9. **Real-Time Communication:** Server-Sent Events (SSE) stream transfer logs and status updates to the terminal in real-time. WebSocket connections support interactive features. This enables live feedback during long-running operations.
+
+10. **Security Model:** Trust is minimized by keeping secrets client-side. The server is designed to be compromisable without exposing user data. Even if an attacker gains full server access, encrypted files remain secure and private keys stay safe in your browser.
