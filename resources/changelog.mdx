@@ -3,121 +3,558 @@ title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
-## December 2, 2024
+## v1.7.8
+**December 1, 2025**
 
-**Documentation**
-- Added Integrations menu (Starknet, Pinata, Crust Network, x402)
-- Updated x402 internal payment system documentation
-- Simplified Integration Architecture diagram
-- Rewrote FAQ with core zkTerm questions
-- Synced troubleshooting with real error messages
-
----
-
-## v2.0.0 - December 2024
-
-**Major Features**
-- zkCompression: Light Protocol integration for 1000x cost reduction on Solana
-- Private Swap: HoudiniSwap integration for cross-chain privacy
-- Rewards System: Trade-to-earn with on-chain verification
-- Starknet Multi-Chain Wallet: Create and manage Starknet wallets
-
-**Enhancements**
-- Improved terminal performance with XTerm.js optimizations
-- Enhanced IPFS reliability with automatic retry logic
-- Better error messages synced with troubleshooting docs
-- Mobile-responsive terminal UI
-- Dual-mode zkAI assistant
-
-**Bug Fixes**
-- Fixed zkStorage download timeout issues
-- Resolved Starknet proof submission failures
-- Corrected token balance display for compressed tokens
-- Fixed terminal scroll behavior on long outputs
-
----
-
-## v1.5.0 - November 2024
-
-**New Features**
-- zkAttest: Privacy-preserving data attestation via zkPass zkTLS
-- zkExplorer: Transaction history and proof explorer
-- Bug Report System: In-terminal bug reporting with image uploads
+**Features**
+- zkToolkit Phase 4: Field Arithmetic module - field.add(), field.sub(), field.mul(), field.div(), field.inv(), field.pow(), field.sqrt() for finite field operations mod BN254 prime
+- zkToolkit Phase 4: Elliptic Curve module - ec.add(), ec.mul(), ec.base(), ec.isOnCurve() for Baby JubJub curve operations (a=168700, d=168696)
+- zkToolkit Phase 4: Shamir Secret Sharing module - shamir.split(), shamir.combine() for threshold secret sharing schemes
+- zkToolkit Phase 4: Groth16 Proof module - proof.generate(), proof.verify(), proof.export() for zkSNARK proof generation and verification
+- Terminal commands: 'zk field add/sub/mul/div/inv/pow/sqrt/neg/random/prime', 'zk ec base/identity/add/double/mul/mulbase/neg/isoncurve/params/random'
+- Terminal commands: 'zk shamir split/combine/random', 'zk proof generate/verify/export/circuits/info'
+- REST API endpoints: /api/zk-toolkit/field/*, /api/zk-toolkit/ec/*, /api/zk-toolkit/shamir/*, /api/zk-toolkit/proof/*
 
 **Improvements**
-- Faster Poseidon hash performance
-- Better zkID verification UX
-- Enhanced documentation structure
+- Complete @zkterm/zktoolkit package with all 10 modules: hash, commit, merkle, range, sign, nullifier, field, ec, shamir, proof
+- Fixed Tonelli-Shanks modular square root algorithm for correct exponentiation
+- Replaced browser crypto.getRandomValues with Node.js crypto.randomBytes for server-side compatibility
+- Baby JubJub elliptic curve implementation with twisted Edwards form (ZK-circuit friendly)
+- Field arithmetic using BN254 prime (21888242871839275222246405745257275088548364400416034343698204186575808495617)
+
+---
+
+## v1.7.7
+**November 29-30, 2025**
+
+**Features**
+- zkToolkit Phase 3: Merkle Tree module - merkle.create(), merkle.proof(), merkle.verify() for tree operations
+- zkToolkit Phase 3: Range Proof module - range.prove(), range.verify() for proving value in range without revealing actual value
+- zkToolkit Phase 3: EdDSA Signature module - sign.keypair(), sign.sign(), sign.verify() for ZK-friendly digital signatures
+- zkToolkit Phase 3: Nullifier module - nullifier.create(), nullifier.verify() for double-spend prevention
+- Terminal commands: 'zk toolkit merkle create/proof/verify', 'zk toolkit range prove/verify', 'zk toolkit sign keypair/sign/verify', 'zk toolkit nullifier create/verify'
+- REST API endpoints: /api/zk-toolkit/merkle/*, /api/zk-toolkit/range/*, /api/zk-toolkit/sign/*, /api/zk-toolkit/nullifier/*
+
+**Improvements**
+- All new modules using ZK-friendly Poseidon hashing (~300 constraints per hash)
+- Range proof verification with proper payload structure validation
+- Merkle tree with fixed depth 32 and efficient Poseidon-based proof generation
+- EdDSA signatures using Ed25519 curve via @noble/ed25519
+
+---
+
+## v1.7.6
+**November 28-29, 2025**
+
+**Features**
+- zkToolkit Phase 2: Pedersen Commitment module - commit.create(), commit.reveal(), commit.verify() for hiding values
+- Commitment scheme properties: Hiding (reveals nothing about value) + Binding (cannot open to different value)
+- Use cases: sealed-bid auctions, voting systems, commit-reveal random number generation, privacy tokens
+- Package consolidation: All ZK packages reorganized into packages/ directory (zkid, zkstorage, zkattest, zktoolkit)
+- Interactive glass lens effect on /new-home page with mouse-tracking refraction
+
+**Improvements**
+- Home page redesign with serif typography (Georgia font) - h1=8vh, h2=6vh, p=3vh sizing
+- VFX.js shader effects tuned: chromatic aberration, RGB shift, wave distortion, dither, grid overlay
+- Modular package exports with TypeScript types (CommitmentResult, RevealResult, VerifyResult)
+- Updated /blog/zktoolkit documentation with Section 2: Cryptographic Commitments
+- README.md updated with commitment usage examples and API reference
+- Package renamed from @zkterm/toolkit to @zkterm/zktoolkit for naming consistency
+
+---
+
+## v1.7.5
+**November 27, 2025**
+
+**Features**
+- zkToolkit Phase 1: Hash Functions - ZK-friendly hashing with Poseidon (~300 constraints), Pedersen (~1000 constraints), MiMC (~500 constraints)
+- Terminal commands: 'zk toolkit help', 'zk toolkit hash help', 'zk toolkit hash <poseidon|pedersen|mimc> <input>'
+- REST API endpoints: POST /api/zk-toolkit/hash/poseidon, /pedersen, /mimc with circomlibjs backend
+- zkToolkit blog post at /blog/zktoolkit - educational documentation covering 10 ZK primitive categories
+- Command reference table with all planned primitives: hash, commit, merkle, range, sign, nullifier, field, ec, shamir, proof
+
+**Improvements**
+- Fixed responsive layout - converted 19+ code blocks to template literals with whitespace-pre-wrap for mobile
+- Improved code formatting across all blog posts for better readability on all devices
+- Added comprehensive summary table showing all 10 ZK primitive categories with descriptions
+
+---
+
+## v1.7.4
+**November 26, 2025**
+
+**Features**
+- zkAttest - privacy-preserving data attestation via zkPass zkTLS protocol with 8 predefined schemas
+- Terminal commands: 'zk attest schemas', 'zk attest create <schema> <url>', 'zk attest verify <id>', 'zk attest list', 'zk attest status <id>', 'zk attest revoke <id>'
+- Attestation types: twitter_followers, github_repos, bank_balance, age_verification, nft_ownership, membership_tier, credit_score, employment_status
+- Prove statements about real-world data WITHOUT revealing underlying values (e.g., 'have >1000 followers' without exposing exact count)
+- zkStorage - privacy-first decentralized file storage with client-side AES-256-GCM encryption + Groth16 zkSNARK password proofs
+- New /new-home page with immersive VFX.js effects, CRT visuals, glass refraction, procedural background, audio, and preloader
+- zkStorage blog post added to /blog with comprehensive technical documentation
 
 **Bug Fixes**
-- Fixed file upload progress tracking
-- Resolved session timeout issues
-- Corrected merkle tree verification
+- Fixed incorrect percentage display in rewards dashboard calculations
+- Improved Solana error messages with human-readable parsing for transaction failures
+- Auto-create Associated Token Account during decompression - prevents 'account not found' errors
+- Blog pagination layout fixes for balanced appearance and equal spacing
+
+**Improvements**
+- Help documentation updated with comprehensive zkStorage and zkAttest command sections
+- Leaderboard now shows ALL participants regardless of trading volume
+- Leaderboard displays trading address and calculated rewards per user
+- Extra safety check for active reward period status before syncing volumes
+- Rewards dashboard loading and data fetching logic improved for reliability
+- Roadmap colors updated to primary green theme for visual consistency
+- Blog post navigation links improved for better user experience
+- Visual layering and procedural background generation for /new-home (no static images)
 
 ---
 
-## v1.0.0 - October 2024
+## v1.7.3
+**November 24, 2025**
 
-**Initial Release**
-- zkID: Privacy-preserving universal identity (`did:zk:xxx`)
-- zkStorage: Encrypted file storage on IPFS via Pinata
-- zkToolkit: Complete cryptographic primitives library (10 modules)
-- Terminal: Interactive ZK-powered CLI
+**Features**
+- Revolutionary AI-mediated terminal input - all terminal prompts (username, password, wallet selection) now handled through AI chat panel
+- Promise-based React state lifting architecture for seamless Terminal-AI communication
+- Auto-execute AI-suggested commands with instant '✓ Executed: [command]' confirmation
+- Anonymous AI chat access - no authentication required, privacy-first ephemeral chat history
+- WhatsApp-style chat interface - user messages right-aligned, natural conversation flow
+- Terminal input UI positioned below chat messages for better UX
 
-**Core Features**
-- Ed25519 digital signatures with client-side keypair generation
-- Groth16 zkSNARK proofs for password verification
-- AES-256-GCM encryption with PBKDF2 key derivation
-- Solana Mainnet + Starknet Sepolia integration
+**Security**
+- Critical password security fix - eliminated password leakage vulnerability in terminal input
+- Ephemeral uncontrolled DOM input handling - passwords never persist in React state, logs, or memory
+- Instant password clearing after capture - values used immediately then wiped with inputElement.value = ''
+- Zero password storage in application state - client-side security pattern enforced
 
----
-
-## Roadmap
-
-**v2.1.0 (Q1 2025)**
-- Zcash integration
-- Hardware wallet support
-- Batch proof generation
-- Advanced merkle tree operations
-
-**v3.0.0 (Q2 2025)**
-- Mobile app (iOS/Android)
-- Post-quantum cryptography research
-- Additional cross-chain bridges
+**Improvements**
+- Terminal input moved below AI chat messages for natural conversation flow
+- User messages styled with max-width 85% and right-aligned positioning
+- AI panel auto-opens when terminal requests input (username, password, wallet selection)
+- Smooth Promise-based communication between Terminal and AI components
+- Enhanced chat UX with clear visual distinction between user and AI messages
+- Better privacy with ephemeral chat sessions that clear on page refresh
 
 ---
 
-## Migration Guide
+## v1.7.2
+**November 22, 2025**
 
-**v1.x to v2.0**
+**Features**
+- ZKML Phase 2: Server-side encrypted chat persistence for zkAI assistant with AES-256-GCM
+- Chat history survives page refreshes - full conversation context maintained across sessions
+- Execute Command buttons persist and work after page reload
+- Compression history analysis endpoint - analyze any wallet's compression/decompression transactions via Helius API
+- zkAI assistant integration with terminal - AI suggests and executes zkTerm commands directly
+- Wallet import functionality - import existing Solana wallets via private key or BIP39 mnemonic
+- Token portfolio viewer command: 'zk tokens [wallet-id]' displays merged regular + compressed SPL tokens
+- Visual [C] indicator for Light Protocol compressed tokens in portfolio view
+- Error recovery UI with Retry button for failed history loads
 
-No breaking changes. v2.0 is fully backward compatible.
+**Security**
+- AbortController-based fetch cancellation prevents stale data from in-flight requests after logout
+- RequestID deduplication system ensures only latest fetch updates state (eliminates race conditions)
+- Dual validation guards: userId + requestId checked before accepting async fetch responses
+- Immediate state clearing on logout with zero cross-user data exposure
+- Masked private key entry for wallet import (never exposed in terminal output)
+- Server-side encryption for all chat messages - client never sees encryption keys
 
-New features to try:
-```bash
-# Compress tokens (Light Protocol)
-compress <mint> <amount>
+**Improvements**
+- RPC indexer sync wait logic for decompression operations (5 polls @ 2s intervals, 10.5s total)
+- BigInt precision throughout token balance calculations - prevents floating point errors
+- Lamport-precision integer comparison for accurate balance change detection
+- Solscan transaction links in compression history analysis output (tweet-ready format)
+- Dynamic decimal handling for arbitrary SPL tokens (supports 6, 7, 8, 9, custom decimals)
+- Full mint addresses displayed in token portfolio (copyable, not truncated)
+- Enhanced terminal stability with deduplication guards for React Strict Mode
+- Network error handling blocks AI submissions until history successfully loads
+- Comprehensive logging for AI assistant debugging and transaction tracking
 
-# Private swap (HoudiniSwap)
-zk swap --houdini quote USDC SOL 100
-
-# Check rewards
-zk rewards status
-
-# View all tokens (regular + compressed)
-zk tokens
-```
+**Bug Fixes**
+- Critical: Fixed cross-user data leak vulnerability from stale async fetch responses
+- Critical: Fixed chat history race conditions during rapid logout/login cycles
+- Fixed network failure leaving historyReady=true despite empty context
+- Fixed TypeScript type error: loadedForUserId changed from number to string (UUID)
+- Fixed compression amount parsing to use human-readable decimals (not lamports)
+- Fixed decompression verification with proper balance change detection
+- Fixed SOL decompression by using native wallet transfers with unwrap verification
+- Fixed token decompression by correcting function calls and destination account handling
 
 ---
 
-## Deprecations
+## v1.7.1
+**November 21, 2025**
 
-**Deprecated in v2.0**
-- Old zkStorage API endpoints (use `/api/storage/*`)
-- Legacy proof format (migrated automatically)
+**Features**
+- ZK Compression terminal command: 'zk compression decompress token <amount> [--mint <address>]' for SPL token decompression
+- Dynamic decimal precision support for any SPL token (6, 7, 8, 9, custom)
+- Default USDC mint from ZKTR_TOKEN_MINT environment variable
+- Starknet integration documentation added to /docs page
+- Comprehensive documentation for multi-chain wallet management (OpenZeppelin, ArgentX)
+- Documentation for STRK transfers with multi-RPC fallback and zkID verification
 
-**Removed in v2.0**
-- None
+**Improvements**
+- Updated all 6 legacy Light Protocol client commands to fetch wallet data and send walletId
+- Backward compatible wallet matching - users can use --from wallet-name on command line
+- Flexible wallet matching supports both full wallet names and partial ID prefixes
+- Added 'ZK Compression Operations' section to main help menu
+- Terminal aesthetic maintained with ANSI colors and no emojis
+
+**Bug Fixes**
+- Migrated ALL Light Protocol endpoints from mutable walletName to stable walletId (primary key)
+- Fixed wallet ID collision bug preventing multi-user wallet collisions
+- Fixed hardcoded token decimals (6/9) that broke tokens with different precision
+- Created createStandardConnection() helper for proper getMint() calls
+- Uses standard Solana Connection (not Light Protocol RPC) to fetch mint decimals dynamically
+- Fixed getWalletKeypair() calls across all endpoints to use correct (userId, walletId) parameter order
+- Updated withWalletMutex() to use walletId parameter
+- Eliminated compile-time type errors and runtime bugs from argument order mismatches
+
+---
+
+## v1.7.0
+**November 20, 2025**
+
+**Features**
+- Starknet STRK token transfers with command 'zk starknet transfer <amount> --to <address>'
+- Password-protected private key decryption for secure transfer execution
+- ERC20 balance checking before transfer - validates sufficient balance for amount + gas fees
+- Transaction broadcasting to Starknet Mainnet with Starkscan explorer links
+- Terminal help system updated with STRK transfer syntax and examples
+
+**Bug Fixes**
+- Critical decimal-to-wei conversion bug - amounts like 0.05 STRK were oversent by 10x due to string concatenation
+- Reimplemented conversion using pure BigInt arithmetic with powerOf10 helper function
+- Fixed sub-1 STRK amounts with leading-zero fractional parts (0.05, 0.000000000000000001, etc)
+- Fixed TypeScript BigInt exponentiation compatibility using loop-based power calculation
+
+**Improvements**
+- Precision-preserving BigInt decimal conversion helpers (decimalToWei/weiToDecimal)
+- Strict input validation: rejects scientific notation, enforces 18 decimal max, rejects zero amounts
+- Balance error messages use weiToDecimal() to avoid Number() overflow on large balances
+- Whitespace trimming in amount input to prevent validation errors
+
+---
+
+## v1.6.1
+**November 19, 2025**
+
+**Improvements**
+- Added Starknet commands to main help system for better discoverability
+- Removed unimplemented 'zk kyc' and 'zk status' commands from terminal interface
+- Removed all references to non-existent 'zk init' command across help text and account display
+- Cleaned up account information display - removed initialization status field
+- Removed 'zk transfer-private' feature - was not providing true on-chain privacy as amounts remained visible in transaction logs
+
+**Security**
+- Removed all debug logging from Starknet proof generation to prevent credential leakage in production
+- Enhanced Starknet proof security with proper felt-safe field element conversion
+
+**Bug Fixes**
+- Critical fix: Starknet signature verification now converts all message elements (timestamp, expiresAt, nonce, zkId) to BigInt felt strings before hashing
+- Fixed message hash computation to stay within Stark curve field - prevents signature verification failures
+- Fixed public key re-derivation from private key for STARK signature verification
+
+---
+
+## v1.6.0
+**November 18, 2025**
+
+**Improvements**
+- Streamlined terminal command parser for improved maintainability and performance
+- Cleaned up command registry to focus on production-ready core functionality
+
+**Features**
+- Multi-blockchain proof verification support - proofs now work across different blockchain networks
+- Enhanced zkID proof system with cross-chain compatibility for future expansion
+
+---
+
+## v1.5.0
+**November 17, 2025**
+
+**Features**
+- Starknet multi-chain wallet support - create and manage Cairo-compatible wallets directly from terminal
+- OpenZeppelin and ArgentX account type selection with pre-deployment address calculation
+- New terminal commands: zk starknet help, zk starknet wallet create, zk starknet wallet import, zk starknet address
+- Account contract address derivation using hash.calculateContractAddressFromHash before deployment
+- Database schema extensions with publicKey and accountType columns for multi-chain wallet metadata
+
+**Security**
+- Critical fix: Replaced random key generation with ec.starkCurve.utils.randomPrivateKey() for curve-valid secp256k1 private keys
+- Fixed public key derivation to use hex string WITHOUT '0x' prefix for ec.starkCurve.getStarkKey()
+- AES-256-GCM encryption reused for Starknet private key storage with existing encryption infrastructure
+- Authentication gates on all Starknet commands - wallet operations require active session
+- Private keys never exposed in terminal output or API responses - only public metadata displayed
+
+**Improvements**
+- Comprehensive help system with examples, syntax guides, and authentication requirements for Starknet commands
+- Database session table definition added to prevent ORM cleanup during schema push operations
+- Account class hashes hardcoded for OpenZeppelin (0x061dac...) and ArgentX (0x036078...) contract types
+- Terminal command parser extended to handle Starknet subcommands with --type flag support
+- Full-stack zkid-package crypto module integration for Starknet keypair generation and address calculation
+
+---
+
+## v1.4.0
+**November 15, 2025**
+
+**Bug Fixes**
+- Fixed critical terminal input duplication bug causing commands to echo incorrectly (e.g., 'swapzk swap')
+- Implemented isInitializedRef guard to prevent duplicate event handler registration during hot module reload
+- Enhanced terminal stability with proper initialization lifecycle management
+
+**Improvements**
+- Improved zk swap command help messages with detailed HoudiniSwap integration documentation
+- Adjusted swap command access control - general help accessible without authentication, operations remain protected
+- Updated terminal help information to reflect HoudiniSwap partnership status (code complete, pending activation)
+
+---
+
+## v1.3.0
+**November 14, 2025**
+
+**Features**
+- Single-step `zk login` command with automatic on-chain verification - replaces previous 3-step workflow
+- Auto-generation of Ed25519 proofs for new users during first login
+- Legacy account upgrade system with interactive 'Enable on-chain verification?' prompt
+- Participants table redesign showing ALL registered users (not just verified traders)
+- IS ELIGIBLE column showing confirmed identity_ownership proof status
+- IS VERIFIED column showing trading address verification status
+- zkID privacy truncation display format: `did:zk:ab7h...x6k` (first 4 + last 4 chars)
+- Production migration infrastructure with zkId-based user matching for cross-database compatibility
+- Step-by-step migration guide for database deployment operations
+- Inline verification for already-logged-in unverified users with password prompt
+- Re-verify option for existing users to update on-chain verification status
+
+**Improvements**
+- Enhanced login flow with automatic verification status display and Solscan transaction links
+- Secure password caching in memory refs for smooth legacy upgrade flow with automatic cleanup
+- Database query optimization using MAX aggregation instead of COUNT to prevent overcounting
+- Fixed critical bug: Changed proof status check from 'verified' to 'confirmed' (matching actual schema)
+- Removed RANK column from UPCOMING periods (only shown in completed periods with trading data)
+- LEFT JOIN with zk_proofs table for accurate eligibility status checking
+- Standardized all authentication flows through `zk login` command
+- Updated terminal command descriptions and help text to reflect new auto-verification system
+- Enhanced terminal output formatting for verification status and transaction links
+
+**Security**
+- Client-side Ed25519 keypair generation with password-based encryption (PBKDF2 + AES-256-GCM)
+- Backend upgrade endpoint (POST /api/auth/upgrade-legacy) for legacy account migration
+- Immediate on-chain verification after legacy account upgrade
+- Secure password handling with temporary storage in refs and cleanup in finally blocks
+- Replay protection maintained through nonce + timestamp validation
+- ON CONFLICT DO UPDATE clauses for safe re-run support in production migrations
+
+---
+
+## v1.2.0
+**November 13, 2025**
+
+**Features**
+- Comprehensive API Reference page with all terminal commands organized by category
+- Light Protocol (ZK Compression) command documentation - 9 commands including create-token, mint, transfer, balance, compress, decompress, airdrop, and account-info
+- Transfer Modes category documenting all three transfer types (SOL, ZEC, compressed, private) with cost comparisons
+- Account Management commands (password change, logout) in API reference
+- Complete wallet management documentation with all subcommands (create, list, delete, switch, backup, info, help)
+- Mobile-responsive API reference navigation with hamburger menu and overlay
+
+**Improvements**
+- Updated project description to professional tagline: 'A standardized terminal for modern zero-knowledge development'
+- Replaced 'One Terminal for the Entire Zero-Knowledge Universe' with more focused messaging across all pages
+- Updated meta description for better SEO and clarity
+- Enhanced documentation homepage with new vision statement
+- Improved roadmap clarity with honest Phase 1-2 assessment vs future vision
+- Removed contract address (CA) from homepage for cleaner professional presentation
+- Removed backend infrastructure items from public-facing roadmap
+- Documentation now clearly separates current Solana-only capabilities from universal vision
+
+---
+
+## v1.1.0
+**November 12, 2025**
+
+**Features**
+- Privacy Mode transfers with zk transfer-private command using Ed25519 proofs + AES-256-GCM encryption
+- ZK Compression transfers with zk transfer-compressed command - 98% cost reduction using Light Protocol
+- New zk account command showing zkID, username, creation date, and initialization status
+- Interactive transfer mode selector when typing 'zk transfer' without arguments
+- Password change system with keypair re-encryption via zk account change-password
+- Encrypted amount display in history for Privacy Mode transfers (enc_XXXXX format)
+- Transfer mode badges in history ([STANDARD]/[ZK-COMPRESSED]/[CONFIDENTIAL])
+
+**Improvements**
+- Enhanced help system displaying all three transfer modes with clear syntax and use cases
+- Solscan transaction explorer links in both history display and transfer confirmations
+- Updated meta description and homepage description for clearer messaging
+- Transfer mode selection guide with feature comparisons and cost breakdowns
+- History command shows privacy indicators for confidential transfers
+
+**Security**
+- Wallet mutex locking to prevent double-spend attacks during concurrent transfers
+- Memo program payload encryption with ZKTP|v1 format (max 184 bytes)
+- Replay protection via nonce + timestamp validation
+- Private key zeroization after transaction completion
+- AES-256-GCM encryption with HKDF-derived session keys for Privacy Mode
+
+---
+
+## v1.0.0
+**November 12, 2025**
+
+**Bug Fixes**
+- Fixed critical authentication bug where session cookies were not persisting in production
+- Fixed cookie secure setting - changed to secure: true for HTTPS environments
+- Added credentials: 'include' to all 12 fetch calls in XTermTerminal.tsx
+- Added app.set('trust proxy', 1) for proper proxy handling
+- Fixed TypeScript AuthRequest interface error in server/wallets.ts
+- Fixed wallet command parser to recognize --list and --ls flags
+
+**Security**
+- Session cookies now use httpOnly, secure, and sameSite: 'lax' configuration
+- All API requests now include session cookies via credentials: 'include'
+
+---
+
+## v0.9.0
+**November 10, 2025**
+
+**Features**
+- Real SOL transfers on Solana Mainnet with zk transfer command
+- Simulated ZK proof generation with Groth16 circuit metadata
+- Transaction broadcasting with explorer URL links
+- Idempotent proof creation with metadata storage
+
+**Improvements**
+- Added wallet mutex for concurrent transfer protection
+- Keypair zeroization after transaction for security
+- Timeout handling for blockchain operations
+
+---
+
+## v0.8.0
+**November 8, 2025**
+
+**Features**
+- Multi-blockchain wallet generation (SOL, ZEC)
+- BIP39 seed phrase generation with 12-word mnemonics
+- BIP44 derivation paths for Solana wallets
+- AES-256-GCM encryption for private keys and seeds
+- Real-time balance checking for Solana wallets
+- Wallet backup command with seed phrase export
+
+**Security**
+- PBKDF2 key derivation for encryption
+- Authenticated encryption with AES-256-GCM
+
+---
+
+## v0.7.0
+**November 6, 2025**
+
+**Features**
+- ZK proof history tracking with zk history command
+- Database storage for zkProof records
+- Color-coded status display (pending/verified/failed)
+- Circuit metadata parsing and display
+
+**Improvements**
+- Enhanced terminal output formatting
+- ANSI color support for better UX
+
+---
+
+## v0.6.0
+**November 4, 2025**
+
+**Features**
+- zkID authentication system with did:zk:[random] format
+- Session-based authentication with bcrypt password hashing
+- Terminal-native auth flow (zk id register, zk id verify)
+- Password masking in terminal for security
+- PostgreSQL session storage with connect-pg-simple
+
+**Security**
+- 10-round bcrypt hashing for passwords
+- HTTP-only secure session cookies
+- No credential storage in command history
+
+---
+
+## v0.5.0
+**November 2, 2025**
+
+**Features**
+- XTerm.js terminal integration with FitAddon and WebLinksAddon
+- Unified zk [subcommand] command structure
+- Command history with cursor navigation
+- Braille spinner loading indicators
+- Categorized help system
+
+**Improvements**
+- Real-time command processing
+- ANSI-styled terminal output
+- Custom pink blinking cursor
+
+---
+
+## v0.4.0
+**October 30, 2025**
+
+**Features**
+- Documentation page with sidebar navigation
+- 7 doc groups and 14 feature pages
+- Collapsible group-based sidebar
+- Mobile-first responsive layout
+- Hamburger menu for mobile sidebar
+
+**Improvements**
+- Data-driven content from featuresContent.ts
+- Dynamic section generation
+
+---
+
+## v0.3.0
+**October 28, 2025**
+
+**Features**
+- Homepage with Matrix Rain animation
+- PixelCanvas animated background for terminal
+- Custom ASCII art logo with brand colors
+- PartnerMarquee horizontal scrolling component
+
+**Improvements**
+- macOS-style terminal window frame
+- Flat black design with traffic light controls
+- Phosphor green and pink color scheme
+
+---
+
+## v0.2.0
+**October 26, 2025**
+
+**Features**
+- Google Analytics 4 (GA4) integration
+- Async gtag.js script loading
+- Custom event tracking utilities
+- Page view tracking
+
+**Improvements**
+- Inline GA initialization to prevent race conditions
+- Utility functions for trackEvent and trackPageView
+
+---
+
+## v0.1.0
+**October 24, 2025**
+
+**Features**
+- Initial zkTerm project setup
+- React + TypeScript + Vite frontend
+- Express.js backend with PostgreSQL
+- Drizzle ORM integration
+- Shadcn UI component library
+- Tailwind CSS styling system
 
 ---
 
