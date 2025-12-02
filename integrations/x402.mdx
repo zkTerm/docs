@@ -1,0 +1,190 @@
+---
+title: x402
+description: 'Payment protocol for API monetization'
+---
+
+## Overview
+
+x402 is a payment protocol that enables pay-per-request API access using HTTP 402 Payment Required responses. It allows zkTerm to monetize API access while providing seamless micropayments.
+
+**Status:** Planned Integration
+
+## How It Works
+
+x402 uses the HTTP 402 status code for payment negotiation:
+
+```
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│   Client    │      │   zkTerm    │      │   Payment   │
+│             │      │    API      │      │   Network   │
+├─────────────┤      ├─────────────┤      ├─────────────┤
+│ 1. Request  │ ───> │ 2. 402      │      │             │
+│    /api/... │ <─── │    Payment  │      │             │
+│             │      │    Required │      │             │
+│ 3. Pay      │ ─────────────────────────>│ 4. Verify   │
+│ 5. Request  │ ───> │ 6. Process  │ <─── │    payment  │
+│    + proof  │ <─── │    response │      │             │
+└─────────────┘      └─────────────┘      └─────────────┘
+```
+
+## Planned Features
+
+### Pay-Per-Request
+
+Access premium API endpoints with micropayments:
+
+| Endpoint | Price |
+|----------|-------|
+| `/api/zk-toolkit/proof/generate` | 0.001 USDC |
+| `/api/storage/upload` (>10MB) | 0.01 USDC |
+| `/api/ai/generate` | 0.005 USDC |
+
+### Token Gating
+
+Access control based on token holdings:
+
+```json
+{
+  "endpoint": "/api/premium/*",
+  "requirements": {
+    "token": "ZKTERM",
+    "minBalance": 100
+  }
+}
+```
+
+### Revenue Sharing
+
+Automatic distribution to contributors:
+
+- 70% to zkTerm treasury
+- 20% to feature developers
+- 10% to community fund
+
+## Planned Terminal Commands
+
+```bash
+# Check payment balance
+zk pay balance
+
+# Add funds
+zk pay deposit <amount> --token USDC
+
+# View payment history
+zk pay history
+
+# Enable auto-pay
+zk pay auto --max 1.00
+```
+
+## Planned API Integration
+
+### Payment Required Response
+
+```bash
+GET /api/zk-toolkit/proof/generate
+
+HTTP/1.1 402 Payment Required
+X-Payment-Required: 0.001 USDC
+X-Payment-Address: 0x1234...
+X-Payment-Network: base
+X-Payment-Expires: 300
+```
+
+### Request with Payment
+
+```bash
+POST /api/zk-toolkit/proof/generate
+X-Payment-Proof: base64-encoded-proof
+Content-Type: application/json
+
+{ "inputs": { "a": 5, "b": 7 } }
+```
+
+## Supported Payment Networks
+
+| Network | Token | Status |
+|---------|-------|--------|
+| Base | USDC | Planned |
+| Solana | USDC | Planned |
+| Starknet | USDC | Planned |
+
+## Architecture
+
+### Payment Flow
+
+1. Client requests protected endpoint
+2. Server returns 402 with payment details
+3. Client pays via supported network
+4. Client includes payment proof in retry
+5. Server verifies payment and processes request
+
+### Verification
+
+Payment proofs verified via:
+
+- Transaction hash lookup
+- Merkle proof verification
+- Zero-knowledge payment proofs (privacy option)
+
+## Benefits
+
+### For Users
+
+1. **No Subscriptions** - Pay only for what you use
+2. **Privacy** - ZK payment proofs hide transaction details
+3. **Flexibility** - Multiple payment networks supported
+
+### For zkTerm
+
+1. **Sustainable Revenue** - Direct monetization without ads
+2. **Metered Access** - Prevent abuse of expensive operations
+3. **Fair Pricing** - Usage-based pricing model
+
+## Use Cases
+
+### Premium ZK Operations
+
+CPU-intensive operations like proof generation:
+
+```bash
+# Free: Simple hash
+zk toolkit hash poseidon "hello"
+
+# Paid: Full proof generation
+zk toolkit proof generate --inputs "a=5,b=7"
+```
+
+### Large File Storage
+
+Storage beyond free tier:
+
+```bash
+# Free: Up to 10MB
+zk storage upload small-file.pdf
+
+# Paid: Larger files
+zk storage upload large-file.zip  # 100MB, 0.01 USDC
+```
+
+### AI Features
+
+AI-powered operations:
+
+```bash
+# Paid: AI assistance
+zkAI analyze "What does this contract do?"
+```
+
+## Roadmap
+
+1. **Phase 1:** Payment infrastructure setup
+2. **Phase 2:** Base network integration
+3. **Phase 3:** Multi-network support
+4. **Phase 4:** ZK payment proofs for privacy
+
+## Resources
+
+- [HTTP 402 Specification](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/402)
+- [Base Network](https://base.org)
+- [USDC](https://www.circle.com/en/usdc)

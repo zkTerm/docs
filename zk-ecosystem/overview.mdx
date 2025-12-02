@@ -5,11 +5,7 @@ description: 'Complete suite of zero-knowledge tools for privacy-preserving appl
 
 ## The zkTerm Ecosystem
 
-zkTerm provides a complete privacy ecosystem:
-
-<Frame>
-  <img src="/images/zk-ecosystem.png" alt="ZK Ecosystem Overview" />
-</Frame>
+zkTerm provides a complete privacy ecosystem with 5 integrated components.
 
 ## Ecosystem Components
 
@@ -19,143 +15,112 @@ zkTerm provides a complete privacy ecosystem:
 | **zkCompression** | Light Protocol for Solana token compression | Live |
 | **zkToolkit** | 10-module cryptographic primitives library | Live |
 | **zkStorage** | Encrypted IPFS with zkSNARK proofs | Live |
-| **zkAuth** | Passwordless social login with STARK proofs | Coming Soon |
-| **Explorer** | Visual dashboard for wallets, tokens, files, zkID, and more | Live |
+| **zkAuth** | Passwordless social login with STARK proofs | In Development |
 
 ## zkID
 
-<Card title="zkID Documentation" icon="fingerprint" href="/zk-ecosystem/zkid">
-  Privacy-preserving universal identity
-</Card>
+Privacy-preserving universal identity system.
 
 **Key Features:**
-- `did:zk:[12 alphanumeric chars]` universal DID format
-- Client-side Ed25519 proof generation
-- Dual-chain on-chain verification (Solana Mainnet + Starknet Sepolia)
-- Cairo smart contract for zkID proof storage
+1. `did:zk:[12 alphanumeric chars]` universal DID format
+2. Client-side Ed25519 proof generation
+3. Dual-chain on-chain verification (Solana Mainnet + Starknet Sepolia)
+4. Cairo smart contract for zkID proof storage
 
 ```bash
-zkid create           # Create new zkID
-zkid verify           # Verify your identity
-zkid status           # Check on-chain status
+zk id register        # Create new zkID
+zk id login           # Login to existing zkID
+zk id prove           # Generate ZK proof
+zk id status          # Check verification status
 ```
+
+[View zkID Documentation](/zk-ecosystem/zkid)
 
 ## zkCompression
 
-<Card title="zkCompression Documentation" icon="compress" href="/zk-ecosystem/zkcompression">
-  Light Protocol integration for Solana
-</Card>
+Light Protocol integration for Solana ZK Compression.
 
 **Key Features:**
-- Compress SPL tokens to reduce storage costs by 1000x
-- Decompress tokens back to regular SPL tokens
-- Full terminal and API integration
-- Automatic retry polling for RPC indexer sync
+1. Compress SPL tokens to reduce storage costs by 5000x
+2. Decompress tokens back to regular SPL tokens
+3. Full terminal and API integration
+4. Automatic retry polling for RPC indexer sync
 
 ```bash
-compress <mint> <amount>     # Compress tokens
-decompress <mint> <amount>   # Decompress tokens
-zk tokens                    # View all tokens (regular + compressed)
+zk light compress <amount> --from <wallet>      # Compress SOL
+zk light decompress <amount> --from <wallet>    # Decompress SOL
+zk light create-token --decimals 9 --from <wallet>  # Create compressed token
+zk tokens                                        # View all tokens
 ```
+
+[View zkCompression Documentation](/zk-ecosystem/zkcompression)
 
 ## zkToolkit
 
-<Card title="zkToolkit Documentation" icon="toolbox" href="/zk-ecosystem/zktoolkit">
-  Complete ZK cryptographic primitives
-</Card>
+Complete ZK cryptographic primitives library with 10 modules.
 
-**10 Modules:**
+**Modules:**
 
-<CardGroup cols={2}>
-  <Card title="Hash" icon="hashtag">
-    Poseidon, Pedersen, MiMC
-  </Card>
-  <Card title="Commit" icon="lock">
-    Pedersen commitments
-  </Card>
-  <Card title="Merkle" icon="sitemap">
-    Trees and inclusion proofs
-  </Card>
-  <Card title="Range" icon="arrows-left-right">
-    Range proofs
-  </Card>
-  <Card title="Sign" icon="signature">
-    EdDSA on Baby JubJub
-  </Card>
-  <Card title="Nullifier" icon="ban">
-    Double-spend prevention
-  </Card>
-  <Card title="Field" icon="calculator">
-    BN254 field arithmetic
-  </Card>
-  <Card title="EC" icon="circle-nodes">
-    Baby JubJub curve ops
-  </Card>
-  <Card title="Shamir" icon="share-nodes">
-    Secret sharing
-  </Card>
-  <Card title="Proof" icon="certificate">
-    Groth16 zkSNARKs
-  </Card>
-</CardGroup>
+| Module | Operations |
+|--------|-----------|
+| hash | Poseidon, Pedersen, MiMC |
+| commit | Pedersen commitments |
+| merkle | Trees and inclusion proofs |
+| range | Range proofs |
+| sign | EdDSA on Baby JubJub |
+| nullifier | Double-spend prevention |
+| field | BN254 field arithmetic |
+| ec | Baby JubJub curve ops |
+| shamir | Secret sharing |
+| proof | Groth16 zkSNARKs |
 
 ```bash
-zk toolkit help              # Show all modules
-zk toolkit hash poseidon     # Hash with Poseidon
-zk field add 5 7             # Field addition
-zk ec mulbase 12345          # EC scalar multiplication
+zk toolkit help                          # Show all modules
+zk toolkit hash poseidon "hello"         # Hash with Poseidon
+zk toolkit field add 5 7                 # Field addition
+zk toolkit ec mulbase 12345              # EC scalar multiplication
+zk toolkit shamir split "secret" --threshold 3 --shares 5
 ```
+
+[View zkToolkit Documentation](/zk-ecosystem/zktoolkit)
 
 ## zkStorage
 
-<Card title="zkStorage Documentation" icon="hard-drive" href="/zk-ecosystem/zkstorage">
-  Encrypted decentralized file storage
-</Card>
+Encrypted decentralized file storage with ZK proofs.
 
 **Key Features:**
-- Client-side AES-256-GCM encryption
-- IPFS storage via Pinata
-- Groth16 zkSNARK proofs for password verification
-- SHA-256 checksum validation
+1. Client-side AES-256-GCM encryption
+2. IPFS storage via Pinata
+3. Groth16 zkSNARK proofs for password verification
+4. SHA-256 checksum validation
 
 ```bash
-zk storage upload <file>     # Upload encrypted file
-zk storage download <cid>    # Download and decrypt
-zk storage list              # List your files
-zk storage verify <cid>      # Verify with ZK proof
+zk storage upload              # Upload encrypted file (opens file picker)
+zk storage download <file-id>  # Download and decrypt
+zk storage list                # List your files
+zk storage share <file-id>     # Create shareable link
 ```
+
+[View zkStorage Documentation](/zk-ecosystem/zkstorage)
 
 ## zkAuth
 
-<Card title="zkAuth Documentation" icon="key" href="/zk-ecosystem/zkauth">
-  Passwordless authentication with STARK proofs
-</Card>
+Passwordless authentication with STARK proofs. **Status: In Development**
 
-**Key Features:**
-- Web3Auth social login (Google, GitHub, X)
-- No passwords, no seed phrases
-- STARK proofs on Starknet for verification
-- Quantum-resistant cryptography
+**Planned Features:**
+1. Web3Auth social login (Google, GitHub, X)
+2. No passwords, no seed phrases
+3. STARK proofs on Starknet for verification
+4. Quantum-resistant cryptography
 
 ```bash
-zkauth login google          # Login with Google
-zkauth login github          # Login with GitHub
-zkauth status                # Check auth status
+# Planned commands
+zk auth login google     # Login with Google
+zk auth login github     # Login with GitHub
+zk auth status           # Check auth status
 ```
 
-## zkTerm Explorer
-
-<Card title="zkTerm Explorer" icon="compass" href="https://zkterm.io/explorer">
-  Visual dashboard for your zkTerm data
-</Card>
-
-**Key Features:**
-- **Wallet Overview** - View balances across all your wallets
-- **Token Portfolio** - Regular and compressed tokens in one view
-- **zkStorage Browser** - Browse your encrypted files
-- **zkID Status** - Verification status and on-chain proofs
-- **Transaction History** - Compressions, uploads, transfers
-- **Decentralized Mirror** - Coming soon for unstoppable access
+[View zkAuth Documentation](/zk-ecosystem/zkauth)
 
 ## Terminal Access
 
@@ -163,16 +128,14 @@ All ecosystem components are accessible through the zkTerm terminal:
 
 ```bash
 # Visit https://zkterm.io/terminal
-# Or use the REST API at https://zkterm.io/api/
+# Or use the REST API
 ```
 
 ## API Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
-| `POST /api/zkid/*` | zkID operations |
-| `POST /api/compress/*` | Compression operations |
-| `POST /api/zk-toolkit/*` | Toolkit primitives |
-| `POST /api/zk-storage/*` | Storage operations |
-| `POST /api/zkauth/*` | Authentication |
-| `POST /api/explorer/*` | Explorer operations |
+| `/api/auth/*` | zkID operations |
+| `/api/light/*` | Compression operations |
+| `/api/zk-toolkit/*` | Toolkit primitives |
+| `/api/storage/*` | Storage operations |

@@ -1,0 +1,151 @@
+---
+title: Crust Network
+description: 'Decentralized storage layer for permanent file hosting'
+---
+
+## Overview
+
+Crust Network is a decentralized storage protocol built on Polkadot that provides incentivized IPFS pinning with on-chain storage proofs.
+
+**Status:** Planned Integration
+
+## Why Crust?
+
+1. **Permanent Storage** - Economic incentives ensure files stay pinned indefinitely
+2. **Decentralized** - No single point of failure, files replicated across nodes
+3. **On-Chain Proofs** - Storage proofs verified on Polkadot parachain
+4. **IPFS Compatible** - Works with existing IPFS CIDs
+
+## Planned Features
+
+### Storage Guarantees
+
+Unlike standard IPFS pinning, Crust provides cryptographic guarantees:
+
+```
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│   zkTerm    │      │   Crust     │      │  Polkadot   │
+│   Server    │      │   Network   │      │  Parachain  │
+├─────────────┤      ├─────────────┤      ├─────────────┤
+│ 1. Pin CID  │ ───> │ 2. Replicate│ ───> │ 3. Store    │
+│    request  │      │    to nodes │      │    proof    │
+└─────────────┘      └─────────────┘      └─────────────┘
+```
+
+### Multi-Replica Storage
+
+Files automatically replicated across multiple storage nodes:
+
+- Minimum 3 replicas per file
+- Geographic distribution
+- Automatic re-replication on node failure
+
+### Storage Proofs
+
+Storage providers must submit periodic proofs:
+
+1. **Proof of Replication (PoR)** - Prove data stored correctly
+2. **Proof of Space-Time (PoST)** - Prove data stored over time
+3. **Verification** - Proofs verified on-chain
+
+## Planned Terminal Commands
+
+```bash
+# Pin file to Crust network
+zk storage pin <cid> --network crust
+
+# Check storage status
+zk storage status <cid>
+
+# Get replica count
+zk storage replicas <cid>
+```
+
+## Planned API Endpoints
+
+### Pin to Crust
+
+```bash
+POST /api/storage/crust/pin
+Content-Type: application/json
+
+{
+  "cid": "QmXyz123...",
+  "replicas": 5
+}
+```
+
+### Check Status
+
+```bash
+GET /api/storage/crust/status/<cid>
+```
+
+**Response:**
+```json
+{
+  "cid": "QmXyz123...",
+  "replicas": 5,
+  "status": "pinned",
+  "expiresAt": "2026-12-01T00:00:00Z",
+  "storageProof": "0xabc..."
+}
+```
+
+## Architecture
+
+### Current: Pinata Only
+
+```
+zkStorage → Pinata → IPFS
+```
+
+### Planned: Pinata + Crust
+
+```
+zkStorage → Pinata → IPFS
+              ↓
+           Crust Network (storage guarantees)
+              ↓
+           Polkadot (on-chain proofs)
+```
+
+## Cost Model
+
+Crust uses CRU tokens for storage payments:
+
+| Storage | Duration | Approximate Cost |
+|---------|----------|------------------|
+| 1 GB | 1 year | ~5 CRU |
+| 1 GB | Permanent | ~50 CRU |
+
+Actual costs depend on network conditions and replica count.
+
+## Integration Benefits
+
+### For zkStorage
+
+1. **Censorship Resistance** - No central authority can remove files
+2. **Permanence** - Files survive even if zkTerm goes offline
+3. **Verification** - Users can verify storage on-chain
+4. **Redundancy** - Multiple replicas across global nodes
+
+### For Users
+
+1. **Trust Minimization** - Don't need to trust zkTerm for file persistence
+2. **Transparency** - Storage proofs publicly verifiable
+3. **Longevity** - Files accessible via any IPFS gateway
+
+## Roadmap
+
+1. **Phase 1:** Research and SDK integration
+2. **Phase 2:** Testnet implementation
+3. **Phase 3:** Mainnet deployment
+4. **Phase 4:** Automatic pinning for all zkStorage uploads
+
+## Resources
+
+- [Crust Network](https://crust.network)
+- [Crust Wiki](https://wiki.crust.network)
+- [Crust Apps](https://apps.crust.network)
+- [Polkadot](https://polkadot.network)

@@ -77,6 +77,16 @@
       ]
     },
     {
+      "group": "Integrations",
+      "pages": [
+        "integrations/overview",
+        "integrations/starknet",
+        "integrations/pinata",
+        "integrations/crust",
+        "integrations/x402"
+      ]
+    },
+    {
       "group": "Guides",
       "pages": [
         "guides/zkid-integration",

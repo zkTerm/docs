@@ -1,0 +1,83 @@
+---
+title: Integrations Overview
+description: 'External services and protocols integrated with zkTerm'
+---
+
+## Overview
+
+zkTerm integrates with multiple external services and protocols to provide a complete privacy-first experience.
+
+## Active Integrations
+
+| Integration | Purpose | Status |
+|-------------|---------|--------|
+| **Starknet** | L2 blockchain for zkID proofs and STRK transfers | Live |
+| **Pinata** | IPFS pinning service for zkStorage | Live |
+| **Crust Network** | Decentralized storage layer | Planned |
+| **x402** | Payment protocol for monetization | Planned |
+
+## Starknet
+
+Starknet is a Layer 2 scaling solution using STARK proofs. zkTerm uses Starknet for:
+
+1. **zkID Proof Registry** - Cairo smart contract stores zkID verification proofs on-chain
+2. **STRK Transfers** - Native token transfers within zkTerm
+3. **Cross-Chain Bridge** - ETH/SOL to Starknet bridging via StarkGate
+
+[View Starknet Integration](/integrations/starknet)
+
+## Pinata
+
+Pinata provides IPFS pinning services for zkStorage:
+
+1. **File Uploads** - Encrypted files stored on IPFS via Pinata API
+2. **Gateway Access** - Fast downloads via Pinata gateway
+3. **Metadata Storage** - File metadata stored alongside encrypted data
+
+[View Pinata Integration](/integrations/pinata)
+
+## Crust Network
+
+Crust Network provides decentralized storage guarantees on top of IPFS:
+
+1. **Storage Incentives** - Economic layer for permanent file storage
+2. **Multi-Replica** - Files replicated across multiple nodes
+3. **On-Chain Proofs** - Storage proofs verified on Polkadot
+
+[View Crust Integration](/integrations/crust)
+
+## x402
+
+x402 is a payment protocol for API monetization:
+
+1. **Pay-Per-Request** - Micropayments for API calls
+2. **Token Gating** - Access control based on token holdings
+3. **Revenue Sharing** - Automatic distribution to contributors
+
+[View x402 Integration](/integrations/x402)
+
+## Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      zkTerm                              │
+├─────────────────────────────────────────────────────────┤
+│  zkID        zkStorage      zkCompression    zkToolkit  │
+├─────────────────────────────────────────────────────────┤
+│              INTEGRATION LAYER                           │
+├──────────┬──────────┬──────────┬────────────────────────┤
+│ Starknet │  Pinata  │  Crust   │         x402           │
+│  (L2)    │  (IPFS)  │ (Storage)│       (Payments)       │
+└──────────┴──────────┴──────────┴────────────────────────┘
+```
+
+## Environment Variables
+
+Each integration requires specific environment variables:
+
+| Integration | Required Variables |
+|-------------|-------------------|
+| Starknet | `STARKNET_RPC_URL`, `STARKNET_PRIVATE_KEY` |
+| Pinata | `PINATA_JWT` |
+| Crust | `CRUST_API_KEY` (planned) |
+| x402 | `X402_API_KEY` (planned) |

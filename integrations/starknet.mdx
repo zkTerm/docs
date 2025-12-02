@@ -1,0 +1,223 @@
+---
+title: Starknet
+description: 'Layer 2 blockchain integration for zkID proofs and STRK transfers'
+---
+
+## Overview
+
+Starknet is a Layer 2 scaling solution that uses STARK proofs for validity. zkTerm integrates with Starknet for on-chain zkID verification, STRK token transfers, and cross-chain bridging.
+
+## Features
+
+1. **zkID Proof Registry** - Store zkID verification proofs on-chain via Cairo smart contract
+2. **Wallet Management** - Create and manage Starknet wallets within zkTerm
+3. **STRK Transfers** - Send STRK tokens to any Starknet address
+4. **Cross-Chain Bridge** - Bridge ETH/SOL to Starknet via StarkGate + Hyperlane
+
+## zkID Proof Registry
+
+zkTerm deploys a Cairo smart contract on Starknet Sepolia that stores zkID proofs:
+
+**Contract Functions:**
+
+| Function | Description |
+|----------|-------------|
+| `store_proof` | Store a new zkID proof with proof_id, proof_hash, and zk_id |
+| `get_proof` | Retrieve proof details by proof_id |
+| `verify_proof_exists` | Check if a proof exists on-chain |
+
+**Events:**
+
+```cairo
+ProofStored {
+    proof_id: felt252,
+    proof_hash: felt252,
+    zk_id: felt252,
+    owner: ContractAddress,
+    timestamp: u64
+}
+```
+
+## Terminal Commands
+
+### List Starknet Wallets
+
+```bash
+zk wallet list --chain starknet
+```
+
+### Create Starknet Wallet
+
+```bash
+zk wallet create --chain starknet --name "my-stark-wallet"
+```
+
+### Transfer STRK
+
+```bash
+zk starknet transfer <amount> --to <address> --from <wallet>
+```
+
+**Example:**
+```bash
+> zk starknet transfer 1.5 --to 0x1234...5678 --from mystark
+Password: ********
+
+STRK TRANSFER
+
+  Amount:    1.5 STRK
+  To:        0x1234...5678
+  From:      mystark (0xabcd...ef01)
+
+  TxHash:    0x7890...1234
+  Explorer:  https://starkscan.co/tx/0x7890...1234
+```
+
+### Check Balance
+
+```bash
+zk starknet balance <address>
+```
+
+## Cross-Chain Bridge
+
+### Ethereum to Starknet
+
+```bash
+zk bridge eth <amount> --to <starknet-address>
+```
+
+Supported tokens: ETH, USDC, USDT, WBTC, DAI, STRK, WETH
+
+### Solana to Starknet
+
+```bash
+zk bridge sol <amount> --to <starknet-address>
+```
+
+Supported tokens: SOL, DREAMS, TRUMP, JUP, BONK, PUMP, FARTCOIN
+
+Bridge uses StarkGate with Hyperlane for Solana route.
+
+### Check Bridge Status
+
+```bash
+zk bridge status <tx-id>
+```
+
+### Bridge History
+
+```bash
+zk bridge history
+```
+
+## API Reference
+
+### List Wallets
+
+```bash
+GET /api/starknet/wallets
+```
+
+**Response:**
+```json
+{
+  "wallets": [
+    {
+      "id": "uuid",
+      "name": "my-stark-wallet",
+      "address": "0x1234...5678",
+      "isActive": true
+    }
+  ]
+}
+```
+
+### Transfer STRK
+
+```bash
+POST /api/starknet/transfer
+Content-Type: application/json
+
+{
+  "amount": "1.5",
+  "recipientAddress": "0x1234...5678",
+  "password": "your-password",
+  "walletId": "wallet-uuid"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "txHash": "0x7890...1234",
+  "explorerUrl": "https://starkscan.co/tx/0x7890..."
+}
+```
+
+### Initiate Bridge
+
+```bash
+POST /api/bridge/initiate
+Content-Type: application/json
+
+{
+  "bridgeType": "sol-starknet",
+  "direction": "deposit",
+  "token": "SOL",
+  "amount": "1.5",
+  "destAddress": "0x1234...5678"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "transaction": { ... },
+  "starkgateUrl": "https://starkgate.starknet.io/solana/bridge?...",
+  "instructions": {
+    "step1": "Click the StarkGate URL",
+    "step2": "Connect wallet and confirm",
+    "step3": "Track with zk bridge status <tx-id>"
+  }
+}
+```
+
+## Technical Details
+
+### RPC Configuration
+
+zkTerm connects to Starknet via RPC providers with fallback:
+
+```typescript
+const providers = [
+  'https://starknet-mainnet.public.blastapi.io',
+  'https://free-rpc.nethermind.io/mainnet-juno',
+];
+```
+
+### Gas Sponsorship
+
+Server wallet pays gas fees for zkID proof submissions so users don't need STRK tokens.
+
+### Security
+
+1. Private keys encrypted with user password
+2. Wallet mutex locking prevents concurrent access
+3. Private keys zeroized from memory after use
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `STARKNET_RPC_URL` | Starknet RPC endpoint |
+| `STARKNET_PRIVATE_KEY` | Server wallet for gas sponsorship |
+| `ZKID_REGISTRY_ADDRESS` | Cairo contract address |
+
+## Explorer Links
+
+- **Mainnet:** [starkscan.co](https://starkscan.co)
+- **Sepolia:** [sepolia.starkscan.co](https://sepolia.starkscan.co)
+- **Hyperlane:** [explorer.hyperlane.xyz](https://explorer.hyperlane.xyz)
