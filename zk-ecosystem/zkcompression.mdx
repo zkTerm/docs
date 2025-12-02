@@ -5,29 +5,15 @@ description: 'Light Protocol integration for Solana ZK Compression'
 
 ## Overview
 
-zkCompression integrates Light Protocol to enable ZK Compression on Solana, allowing you to compress SPL tokens and reduce storage costs by up to 1000x.
-
-<Info>
-  Compressed tokens maintain full functionality while using significantly less on-chain storage through zero-knowledge state compression.
-</Info>
+zkCompression integrates Light Protocol to enable ZK Compression on Solana, allowing you to compress SPL tokens and reduce storage costs by up to 5000x.
 
 ## How It Works
 
-<Frame>
-  <img src="/images/zk-compression.png" alt="ZK Compression Flow" />
-</Frame>
+1. **Compress:** Regular SPL tokens are converted to compressed tokens stored in a Merkle tree state.
 
-<Steps>
-  <Step title="Compress">
-    Regular SPL tokens are converted to compressed tokens stored in a Merkle tree state.
-  </Step>
-  <Step title="Store">
-    Only the Merkle root is stored on-chain, dramatically reducing costs.
-  </Step>
-  <Step title="Decompress">
-    Compressed tokens can be decompressed back to regular SPL tokens at any time.
-  </Step>
-</Steps>
+2. **Store:** Only the Merkle root is stored on-chain, dramatically reducing costs.
+
+3. **Decompress:** Compressed tokens can be decompressed back to regular SPL tokens at any time.
 
 ## Cost Comparison
 
@@ -37,39 +23,98 @@ zkCompression integrates Light Protocol to enable ZK Compression on Solana, allo
 | Transfer | ~0.000005 SOL | ~0.000001 SOL |
 | Storage per token | ~165 bytes | ~0.165 bytes |
 
-<Note>
-  Compressed tokens are 1000x cheaper to store while maintaining the same functionality.
-</Note>
+Compressed tokens are 5000x cheaper to create and 98% cheaper to transfer.
 
 ## Terminal Commands
 
-### Compress Tokens
+### Show Help
 
 ```bash
-compress <mint_address> <amount>
+zk light help
 ```
 
-Compress regular SPL tokens to ZK compressed tokens.
+Shows all available Light Protocol commands and cost savings info.
+
+### Compress SOL
+
+```bash
+zk light compress <amount> --from <wallet>
+```
+
+Convert regular SOL to compressed SOL. Compressed SOL has NO rent costs.
 
 **Example:**
 ```bash
-compress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 100
+zk light compress 0.1 --from mysol
 ```
 
-### Decompress Tokens
+### Decompress SOL
 
 ```bash
-decompress <mint_address> <amount>
+zk light decompress <amount> --from <wallet>
 ```
 
-Decompress tokens back to regular SPL tokens.
+Convert compressed SOL back to regular SOL.
 
 **Example:**
 ```bash
-decompress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 50
+zk light decompress 0.1 --from mysol
 ```
 
-### View Token Balances
+### Create Compressed Token
+
+```bash
+zk light create-token --decimals <n> --from <wallet>
+```
+
+Create a new compressed SPL token mint (5000x cheaper than standard).
+
+**Example:**
+```bash
+zk light create-token --decimals 9 --from mysol
+```
+
+### Mint Compressed Tokens
+
+```bash
+zk light mint <token> <amount> <address> --from <wallet>
+```
+
+Mint compressed tokens to a specified address.
+
+### Transfer Compressed Tokens
+
+```bash
+zk light transfer <token> <amount> <address> --from <wallet>
+```
+
+Transfer compressed tokens to another address.
+
+### Check Balance
+
+```bash
+zk light balance <address> [token]
+```
+
+Check compressed token balances for an address.
+
+### Account Info
+
+```bash
+zk light account-info <address>
+```
+
+Get detailed compressed account information including all token balances.
+
+### Airdrop
+
+```bash
+zk light airdrop <token> <amount> --recipients <addr1,addr2,...> --from <wallet>
+```
+
+Mass token distribution to multiple recipients.
+
+## View Token Portfolio
 
 ```bash
 zk tokens
@@ -91,23 +136,15 @@ SOL             10.5         Regular      So11111...
 
 ## API Reference
 
-### Compress Tokens
-
-<ParamField body="mint" type="string" required>
-  SPL token mint address
-</ParamField>
-
-<ParamField body="amount" type="number" required>
-  Amount to compress (in token units)
-</ParamField>
+### Compress SOL
 
 ```bash
-POST /api/compress
+POST /api/light/compress
 Content-Type: application/json
 
 {
-  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  "amount": 100
+  "amount": 0.1,
+  "walletId": "wallet-uuid"
 }
 ```
 
@@ -116,23 +153,24 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "txSignature": "5abc...",
-  "compressed": {
-    "amount": "100000000",
-    "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  "txHash": "5abc...",
+  "amount": 0.1,
+  "costSavings": {
+    "standardRent": 2039280,
+    "compressedRent": 0
   }
 }
 ```
 
-### Decompress Tokens
+### Decompress SOL
 
 ```bash
-POST /api/decompress
+POST /api/light/decompress
 Content-Type: application/json
 
 {
-  "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  "amount": 50
+  "amount": 0.1,
+  "walletId": "wallet-uuid"
 }
 ```
 
@@ -141,11 +179,52 @@ Content-Type: application/json
 ```json
 {
   "success": true,
-  "txSignature": "6def...",
-  "decompressed": {
-    "amount": "50000000",
-    "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
-  }
+  "txHash": "6def...",
+  "amount": 0.1
+}
+```
+
+### Create Compressed Token
+
+```bash
+POST /api/light/create-token
+Content-Type: application/json
+
+{
+  "decimals": 9,
+  "walletId": "wallet-uuid"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "mintAddress": "CompMint123...",
+  "txHash": "7ghi..."
+}
+```
+
+### Get Account Info
+
+```bash
+GET /api/light/account-info/<address>
+```
+
+**Response:**
+
+```json
+{
+  "address": "YourAddress123...",
+  "compressedBalance": "0.5",
+  "tokenBalances": [
+    {
+      "mint": "EPjFWdd5...",
+      "symbol": "USDC",
+      "balance": "100.00"
+    }
+  ]
 }
 ```
 
@@ -162,15 +241,12 @@ import { compress, decompress } from "@lightprotocol/compressed-token";
 
 ### Wallet Security
 
-<Warning>
-  zkCompression implements wallet mutex locking and private key zeroization for security.
-</Warning>
+zkCompression implements wallet mutex locking and private key zeroization for security:
 
-**Security Features:**
-- Mutex locking prevents concurrent wallet access
-- Private keys are zeroized from memory after use
-- Automatic retry polling for RPC indexer sync
-- Auto-create Associated Token Account during decompression
+1. Mutex locking prevents concurrent wallet access
+2. Private keys are zeroized from memory after use
+3. Automatic retry polling for RPC indexer sync
+4. Auto-create Associated Token Account during decompression
 
 ### RPC Configuration
 
@@ -186,8 +262,6 @@ const connection = createRpc(
 
 ## Error Handling
 
-Common errors and solutions:
-
 | Error | Cause | Solution |
 |-------|-------|----------|
 | `Account not found` | ATA doesn't exist | Auto-created during decompression |
@@ -201,42 +275,32 @@ Common errors and solutions:
 > zk tokens
 USDC: 1000.00 (Regular)
 
-# 2. Compress 500 USDC
-> compress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 500
-Compressing 500 USDC...
+# 2. Compress 0.1 SOL
+> zk light compress 0.1 --from mysol
+Compressing SOL...
 Transaction: 5abc...
-Compression complete!
 
-# 3. Check updated balances
-> zk tokens
-USDC: 500.00 (Regular)
-USDC: 500.00 [C]
+COMPRESSION SUCCESSFUL
+  Amount:    0.1 SOL
+  TxHash:    5abc...
 
-# 4. Decompress 250 USDC
-> decompress EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v 250
-Decompressing 250 USDC...
+  RENT SAVINGS:
+  Standard:     2039280 lamports
+  Compressed:   0 lamports (NO RENT!)
+
+# 3. Check account info
+> zk light account-info <your-address>
+
+COMPRESSED ACCOUNT INFO
+  Address:         <your-address>
+  SOL Balance:     0.1 SOL
+
+# 4. Decompress when needed
+> zk light decompress 0.05 --from mysol
+Decompressing SOL...
 Transaction: 6def...
-Decompression complete!
 
-# 5. Final balances
-> zk tokens
-USDC: 750.00 (Regular)
-USDC: 250.00 [C]
+DECOMPRESSION SUCCESSFUL
+  Amount:    0.05 SOL
+  TxHash:    6def...
 ```
-
-## Use Cases
-
-<CardGroup cols={2}>
-  <Card title="Airdrops" icon="parachute-box">
-    Airdrop tokens to millions of wallets at 1/1000th the cost
-  </Card>
-  <Card title="Gaming" icon="gamepad">
-    Store in-game assets efficiently on-chain
-  </Card>
-  <Card title="NFT Collections" icon="images">
-    Compress large NFT collections for affordable minting
-  </Card>
-  <Card title="DeFi Protocols" icon="coins">
-    Reduce protocol storage costs significantly
-  </Card>
-</CardGroup>

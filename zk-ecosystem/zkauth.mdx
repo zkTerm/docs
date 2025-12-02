@@ -7,168 +7,53 @@ description: 'Passwordless authentication with social login and STARK proofs'
 
 zkAuth provides passwordless authentication using social login (Google, GitHub, X) with STARK proofs on Starknet for verification. No passwords, no seed phrases - just seamless Web3 authentication.
 
-**New in zkTerm Explorer:** All authenticated users can be explored in the zkTerm Explorer, a fully decentralized interface hosted on IPFS via Crust Network. Browse profiles, wallets, transactions, and activity - all powered by zkAuth.
-
-<Note>
-  zkAuth is powered by Web3Auth for key management and uses Cairo STARK proofs for quantum-resistant on-chain verification.
-</Note>
+**Status:** In Development
 
 ## How It Works
 
-<Steps>
-  <Step title="Social Login">
-    User authenticates with Google, GitHub, or X via Web3Auth.
-  </Step>
-  <Step title="Key Generation">
-    Web3Auth generates a non-custodial key unique to the user and app.
-  </Step>
-  <Step title="STARK Proof">
-    A STARK proof is generated proving ownership of the key without revealing it.
-  </Step>
-  <Step title="On-Chain Verification">
-    The proof is verified on Starknet via a Cairo smart contract.
-  </Step>
-</Steps>
+1. **Social Login:** User authenticates with Google, GitHub, or X via Web3Auth.
+
+2. **Key Generation:** Web3Auth generates a non-custodial key unique to the user and app.
+
+3. **STARK Proof:** A STARK proof is generated proving ownership of the key without revealing it.
+
+4. **On-Chain Verification:** The proof is verified on Starknet via a Cairo smart contract.
 
 ## Why STARK?
 
-<CardGroup cols={2}>
-  <Card title="Quantum Resistant" icon="atom">
-    STARK proofs are secure against quantum computers
-  </Card>
-  <Card title="No Trusted Setup" icon="shield-check">
-    Unlike Groth16, STARKs require no trusted ceremony
-  </Card>
-  <Card title="Transparent" icon="eye">
-    Fully transparent verification with no hidden assumptions
-  </Card>
-  <Card title="Scalable" icon="arrow-up-right-dots">
-    Proof size grows logarithmically with computation
-  </Card>
-</CardGroup>
+1. **Quantum Resistant:** STARK proofs are secure against quantum computers.
 
-## Terminal Commands
+2. **No Trusted Setup:** Unlike Groth16, STARKs require no trusted ceremony.
 
-### Login with Google
+3. **Transparent:** Fully transparent verification with no hidden assumptions.
+
+4. **Scalable:** Proof size grows logarithmically with computation.
+
+## Planned Terminal Commands
+
+These commands are planned for the zkAuth release:
 
 ```bash
-zkauth login google
-```
+# Login with social provider
+zk auth login google
+zk auth login github
+zk auth login x
 
-Opens Google OAuth flow and generates STARK proof upon successful authentication.
+# Check auth status
+zk auth status
 
-### Login with GitHub
+# Logout
+zk auth logout
 
-```bash
-zkauth login github
-```
-
-Opens GitHub OAuth flow for developer-friendly authentication.
-
-### Login with X (Twitter)
-
-```bash
-zkauth login x
-```
-
-Opens X OAuth flow for social authentication.
-
-### Check Auth Status
-
-```bash
-zkauth status
-```
-
-Shows current authentication status:
-
-```
-zkAuth Status
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Provider:     Google
-Email:        user@example.com
-Public Key:   0x04abc...
-Starknet:     Verified ✓
-Proof Valid:  Until 2025-12-08
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-### Logout
-
-```bash
-zkauth logout
-```
-
-Clears session and revokes STARK proof.
-
-### Refresh Proof
-
-```bash
-zkauth refresh
-```
-
-Generates a new STARK proof for the current session.
-
-## API Reference
-
-### Initiate Login
-
-<ParamField query="provider" type="string" required>
-  OAuth provider: `google`, `github`, or `x`
-</ParamField>
-
-```bash
-GET /api/zkauth/login?provider=google
-```
-
-**Response:** Redirect to OAuth provider
-
-### Verify Session
-
-```bash
-GET /api/zkauth/status
-```
-
-**Response:**
-
-```json
-{
-  "authenticated": true,
-  "provider": "google",
-  "email": "user@example.com",
-  "publicKey": "0x04abc...",
-  "starknet": {
-    "verified": true,
-    "contract": "0x123...",
-    "proofExpiry": "2025-12-08T10:00:00Z"
-  }
-}
-```
-
-### Generate Proof
-
-```bash
-POST /api/zkauth/prove
-```
-
-**Response:**
-
-```json
-{
-  "proof": {
-    "stark_proof": "0x...",
-    "public_inputs": ["0x...", "0x..."],
-    "cairo_version": "2.0"
-  },
-  "verified": true,
-  "txHash": "0x456..."
-}
+# Refresh STARK proof
+zk auth refresh
 ```
 
 ## Technical Architecture
 
 ### Web3Auth Integration
 
-zkAuth uses Web3Auth for non-custodial key management:
+zkAuth will use Web3Auth for non-custodial key management:
 
 ```typescript
 import { Web3Auth } from "@web3auth/modal";
@@ -177,7 +62,7 @@ const web3auth = new Web3Auth({
   clientId: process.env.WEB3AUTH_CLIENT_ID,
   chainConfig: {
     chainNamespace: "other",
-    chainId: "SN_SEPOLIA",
+    chainId: "SN_MAINNET",
   },
 });
 
@@ -187,7 +72,7 @@ const provider = await web3auth.connect();
 
 ### STARK Proof Generation
 
-STARK proofs are generated using Cairo:
+STARK proofs will be generated using Cairo:
 
 ```cairo
 #[starknet::contract]
@@ -206,7 +91,6 @@ mod ZkAuthVerifier {
         public_key_hash: felt252,
         proof: Span<felt252>
     ) -> bool {
-        // STARK verification logic
         let valid = verify_stark_proof(public_key_hash, proof);
         if valid {
             self.verified_users.write(get_caller_address(), true);
@@ -218,26 +102,11 @@ mod ZkAuthVerifier {
 
 ### Security Model
 
-<Accordion title="Key Management">
-  Web3Auth generates keys using threshold cryptography. The key is split between:
-  - User's device (1 share)
-  - Web3Auth network (1 share)
-  - Recovery share (optional)
-  
-  No single party can access the full key.
-</Accordion>
+1. **Threshold Cryptography:** Web3Auth splits the key between user's device, Web3Auth network, and optional recovery share.
 
-<Accordion title="Proof Expiry">
-  STARK proofs have a configurable expiry (default: 7 days). After expiry, a new proof must be generated to access protected resources.
-</Accordion>
+2. **Proof Expiry:** STARK proofs have configurable expiry (default: 7 days).
 
-<Accordion title="Session Binding">
-  Each proof is bound to:
-  - Specific session ID
-  - User's public key
-  - Timestamp
-  - Application domain
-</Accordion>
+3. **Session Binding:** Each proof is bound to specific session ID, user's public key, timestamp, and application domain.
 
 ## Comparison with Traditional Auth
 
@@ -249,110 +118,17 @@ mod ZkAuthVerifier {
 | Security | Password attacks | STARK (quantum-resistant) |
 | UX | Multiple steps | One-click |
 
-## Example: Full Authentication Flow
-
-```bash
-# 1. Login with Google
-> zkauth login google
-Opening Google OAuth...
-Authenticating...
-Generating STARK proof...
-Submitting to Starknet...
-
-Success!
-Logged in as: user@example.com
-Public Key: 0x04abc123...
-Starknet TX: 0x789def...
-
-# 2. Check status
-> zkauth status
-Provider: Google
-Email: user@example.com
-Starknet: Verified ✓
-Proof expires: 2025-12-08
-
-# 3. Access protected resource
-> zk storage upload secret.pdf
-zkAuth verified ✓
-Uploading...
-
-# 4. Logout
-> zkauth logout
-Session cleared.
-STARK proof revoked.
-```
-
 ## Supported Providers
 
-<CardGroup cols={3}>
-  <Card title="Google" icon="google">
-    Gmail and Google Workspace accounts
-  </Card>
-  <Card title="GitHub" icon="github">
-    GitHub personal and organization accounts
-  </Card>
-  <Card title="X (Twitter)" icon="x-twitter">
-    X/Twitter accounts
-  </Card>
-</CardGroup>
+Planned providers for zkAuth:
 
-## zkTerm Explorer Integration
+1. **Google:** Gmail and Google Workspace accounts
+2. **GitHub:** Personal and organization accounts
+3. **X (Twitter):** X/Twitter accounts
 
-zkAuth powers the **zkTerm Explorer** - a fully decentralized interface for exploring zkTerm user data:
+## Roadmap
 
-### Features
-
-<CardGroup cols={2}>
-  <Card title="User Profiles" icon="user">
-    View zkID, profile pictures, and social connections
-  </Card>
-  <Card title="Wallet Explorer" icon="wallet">
-    Browse Starknet and Solana wallets with real-time balances
-  </Card>
-  <Card title="Transaction History" icon="clock-rotate-left">
-    See all zkID verifications, file uploads, and compressions
-  </Card>
-  <Card title="Activity Feed" icon="chart-line">
-    Live feed of zkTerm operations across the network
-  </Card>
-</CardGroup>
-
-### Access Explorer
-
-```bash
-# Visit the Explorer
-https://zkterm.io/explorer
-```
-
-**Decentralization:**
-- Hosted on IPFS via Crust Network
-- No servers, no downtime
-- Unstoppable interface
-- All data fetched from blockchain and IPFS
-
-### Privacy Considerations
-
-<Warning>
-  While zkAuth preserves privacy during authentication, the Explorer displays **public** on-chain data (wallet addresses, transaction hashes, zkID DIDs). Private data (passwords, files, proof inputs) remain encrypted and invisible.
-</Warning>
-
-**What's Public:**
-- zkID DIDs (`did:zk:xxx`)
-- Wallet addresses (Starknet, Solana)
-- Transaction hashes and timestamps
-- Compressed token counts
-- IPFS CIDs (files are encrypted)
-
-**What's Private:**
-- Passwords and private keys
-- File contents (AES-256-GCM encrypted)
-- zkSNARK proof inputs
-- Email addresses (unless user chooses to share)
-
-## Coming Soon
-
-- **Apple Sign-In**: iOS-native authentication
-- **Discord**: Gaming and community integration
-- **Email OTP**: Passwordless email verification
-- **Biometric**: Face ID and fingerprint support
-- **Explorer Analytics**: Charts and statistics for zkTerm usage
+1. **Apple Sign-In:** iOS-native authentication
+2. **Discord:** Gaming and community integration
+3. **Email OTP:** Passwordless email verification
+4. **Biometric:** Face ID and fingerprint support

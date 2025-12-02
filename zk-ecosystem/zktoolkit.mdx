@@ -7,24 +7,44 @@ description: 'Complete zero-knowledge cryptographic primitives library'
 
 zkToolkit (`@zkterm/zktoolkit`) provides 10 cryptographic modules for building privacy-preserving applications. All primitives are optimized for ZK circuits.
 
-<Info>
-  Version 0.2.0 - All 10 modules are now complete and production-ready.
-</Info>
-
 ## Module Summary
 
-| Module | Functions | Description |
+| Module | Operations | Description |
 |--------|-----------|-------------|
-| **hash** | `poseidon`, `pedersen`, `mimc` | ZK-friendly hash functions |
-| **commit** | `create`, `reveal`, `verify` | Pedersen commitments |
-| **merkle** | `create`, `proof`, `verify` | Merkle trees and proofs |
-| **range** | `prove`, `verify` | Range proofs |
-| **sign** | `keypair`, `sign`, `verify` | EdDSA signatures |
-| **nullifier** | `create`, `verify` | Double-spend prevention |
-| **field** | `add`, `sub`, `mul`, `div`, `inv`, `pow`, `sqrt` | BN254 field arithmetic |
-| **ec** | `add`, `mul`, `base`, `isOnCurve` | Baby JubJub curve |
-| **shamir** | `split`, `combine` | Secret sharing |
-| **proof** | `generate`, `verify`, `export` | Groth16 zkSNARKs |
+| **hash** | poseidon, pedersen, mimc | ZK-friendly hash functions |
+| **commit** | create, reveal, verify | Pedersen commitments |
+| **merkle** | create, prove | Merkle trees and proofs |
+| **range** | prove | Range proofs |
+| **sign** | keypair, sign, verify | EdDSA signatures |
+| **nullifier** | create, verify | Double-spend prevention |
+| **field** | add, mul, inv, pow | BN254 field arithmetic |
+| **ec** | mulbase, add, isoncurve | Baby JubJub curve |
+| **shamir** | split, combine | Secret sharing |
+| **proof** | generate | Groth16 zkSNARKs |
+
+## Terminal Commands
+
+All zkToolkit commands use the format:
+
+```bash
+zk toolkit <category> <operation> [input]
+```
+
+### Show Help
+
+```bash
+zk toolkit help
+```
+
+Shows all available categories and examples.
+
+### Category Help
+
+```bash
+zk toolkit <category> help
+```
+
+Shows detailed help for a specific category.
 
 ---
 
@@ -44,10 +64,16 @@ zk toolkit hash mimc "data" --key "optional"
 | Pedersen | ~1000 | Commitments (homomorphic) |
 | MiMC | ~500 | Keyed hashing |
 
-**API:**
+**Example:**
 ```bash
-POST /api/zk-toolkit/hash/poseidon
-{ "input": "hello world" }
+> zk toolkit hash poseidon "hello"
+
+Poseidon Hash Result
+
+Input: "hello"
+
+Hash:
+  8765432109876543210987654321098765432109876543210987654321098765
 ```
 
 ---
@@ -62,10 +88,6 @@ zk toolkit commit reveal <commitment> 100 --secret "my_secret"
 zk toolkit commit verify <commitment> 100 <salt>
 ```
 
-**Properties:**
-- **Hiding**: Commitment reveals nothing about the value
-- **Binding**: Cannot open to a different value
-
 **Use Cases:** Sealed-bid auctions, voting, commit-reveal randomness
 
 ---
@@ -75,9 +97,8 @@ zk toolkit commit verify <commitment> 100 <salt>
 Build trees and generate inclusion proofs.
 
 ```bash
-zk toolkit merkle create "leaf1" "leaf2" "leaf3"
+zk toolkit merkle create alice bob charlie dave
 zk toolkit merkle proof <root> <leaf> <index>
-zk toolkit merkle verify <root> <leaf> <proof>
 ```
 
 **Features:**
@@ -92,8 +113,7 @@ zk toolkit merkle verify <root> <leaf> <proof>
 Prove a value lies within a range without revealing it.
 
 ```bash
-zk toolkit range prove 42 --min 0 --max 100
-zk toolkit range verify <proof>
+zk toolkit range prove 25 --min 18 --max 100
 ```
 
 **Use Cases:** Age verification, credit score ranges, balance thresholds
@@ -110,8 +130,6 @@ zk toolkit sign sign <message> --privateKey <key>
 zk toolkit sign verify <message> <signature> --publicKey <key>
 ```
 
-**Curve:** Baby JubJub (ZK-circuit friendly)
-
 ---
 
 ## Nullifiers
@@ -119,8 +137,8 @@ zk toolkit sign verify <message> <signature> --publicKey <key>
 Prevent double-spending in privacy protocols.
 
 ```bash
-zk toolkit nullifier create <secret> <nonce>
-zk toolkit nullifier verify <nullifier> <secret> <nonce>
+zk toolkit nullifier create "my_secret" --scope "tx:001"
+zk toolkit nullifier verify <nullifier> <secret> <scope>
 ```
 
 **Use Cases:** Privacy coins, anonymous voting, one-time credentials
@@ -132,27 +150,15 @@ zk toolkit nullifier verify <nullifier> <secret> <nonce>
 Finite field operations modulo BN254 prime.
 
 ```bash
-zk field add 5 7           # 12
-zk field sub 10 3          # 7
-zk field mul 6 7           # 42
-zk field div 42 7          # 6
-zk field inv 5             # Modular inverse
-zk field pow 2 256         # 2^256 mod p
-zk field sqrt 4            # Modular square root
-zk field neg 5             # -5 mod p
-zk field random            # Random field element
-zk field prime             # Show BN254 prime
+zk toolkit field add 5 7           # 12
+zk toolkit field mul 6 7           # 42
+zk toolkit field inv 5             # Modular inverse
+zk toolkit field pow 2 256         # 2^256 mod p
 ```
 
 **Prime:**
 ```
 p = 21888242871839275222246405745257275088548364400416034343698204186575808495617
-```
-
-**API:**
-```bash
-POST /api/zk-toolkit/field/add
-{ "a": "5", "b": "7" }
 ```
 
 ---
@@ -162,16 +168,9 @@ POST /api/zk-toolkit/field/add
 Baby JubJub twisted Edwards curve operations.
 
 ```bash
-zk ec base                      # Generator point G
-zk ec identity                  # Identity point (0, 1)
-zk ec add <x1,y1> <x2,y2>      # Point addition
-zk ec double <x,y>              # Point doubling
-zk ec mul <x,y> <scalar>        # Scalar multiplication
-zk ec mulbase <scalar>          # s * G
-zk ec neg <x,y>                 # Point negation
-zk ec isoncurve <x,y>           # Verify point on curve
-zk ec params                    # Show curve parameters
-zk ec random                    # Random scalar
+zk toolkit ec mulbase <scalar>     # Scalar * Generator
+zk toolkit ec add <x1,y1> <x2,y2>  # Point addition
+zk toolkit ec isoncurve <x,y>      # Verify point on curve
 ```
 
 **Curve Parameters:**
@@ -181,12 +180,6 @@ d = 168696
 Equation: a*x² + y² = 1 + d*x²*y²
 ```
 
-**API:**
-```bash
-POST /api/zk-toolkit/ec/mulbase
-{ "scalar": "12345" }
-```
-
 ---
 
 ## Shamir Secret Sharing
@@ -194,24 +187,23 @@ POST /api/zk-toolkit/ec/mulbase
 Split secrets into threshold shares.
 
 ```bash
-zk shamir split 42 --threshold 3 --shares 5
-zk shamir combine <share1> <share2> <share3>
-zk shamir random
+zk toolkit shamir split "secret" --threshold 3 --shares 5
+zk toolkit shamir combine <share1>,<share2>,<share3>
 ```
 
 **Example:**
 ```bash
-# Split secret 42 into 5 shares, need 3 to reconstruct
-> zk shamir split 42 3 5
-Share 1: 1:1234567890
-Share 2: 2:2345678901
-Share 3: 3:3456789012
-Share 4: 4:4567890123
-Share 5: 5:5678901234
+# Split secret into 5 shares, need 3 to reconstruct
+> zk toolkit shamir split "secret" --threshold 3 --shares 5
+Share 1: 1:abc123...
+Share 2: 2:def456...
+Share 3: 3:ghi789...
+Share 4: 4:jkl012...
+Share 5: 5:mno345...
 
 # Combine any 3 shares
-> zk shamir combine 1:1234567890,2:2345678901,3:3456789012
-Secret: 42
+> zk toolkit shamir combine 1:abc123...,2:def456...,3:ghi789...
+Secret: secret
 ```
 
 **Use Cases:** Multi-party key management, distributed custody, threshold signatures
@@ -220,34 +212,96 @@ Secret: 42
 
 ## Groth16 Proofs
 
-Generate and verify zkSNARK proofs.
+Generate zkSNARK proofs.
 
 ```bash
-zk proof generate --inputs "a=5,b=7"
-zk proof verify <proof_json>
-zk proof circuits                    # List circuits
-zk proof info <circuit_name>         # Circuit details
-zk proof export solidity             # Export verifier
-zk proof export calldata <proof>     # Export calldata
-```
-
-**Available Circuits:**
-| Circuit | Constraints | Inputs |
-|---------|-------------|--------|
-| default | 1 | 1 public, 1 private |
-| poseidon | 216 | 1 public, 2 private |
-| merkle | 4320 | 1 public, 33 private |
-| eddsa | 9000 | 1 public, 4 private |
-
-**API:**
-```bash
-POST /api/zk-toolkit/proof/generate
-{ "inputs": { "a": "5", "b": "7" } }
+zk toolkit proof generate --inputs "a=5,b=7"
 ```
 
 ---
 
-## Installation
+## API Reference
+
+All zkToolkit endpoints are under `/api/zk-toolkit/`.
+
+### Hash Functions
+
+```bash
+POST /api/zk-toolkit/hash/poseidon
+Content-Type: application/json
+
+{ "input": "hello world" }
+```
+
+**Response:**
+```json
+{
+  "algorithm": "Poseidon",
+  "input": "hello world",
+  "hash": "8765432109876543210..."
+}
+```
+
+### Commitments
+
+```bash
+POST /api/zk-toolkit/commit/create
+Content-Type: application/json
+
+{ "value": "100", "secret": "my_secret" }
+```
+
+**Response:**
+```json
+{
+  "commitment": "1234567890...",
+  "salt": "abcdef..."
+}
+```
+
+### Field Arithmetic
+
+```bash
+POST /api/zk-toolkit/field/add
+Content-Type: application/json
+
+{ "a": "5", "b": "7" }
+```
+
+**Response:**
+```json
+{
+  "operation": "add",
+  "a": "5",
+  "b": "7",
+  "result": "12"
+}
+```
+
+### Elliptic Curves
+
+```bash
+POST /api/zk-toolkit/ec/mulbase
+Content-Type: application/json
+
+{ "scalar": "12345" }
+```
+
+**Response:**
+```json
+{
+  "point": {
+    "x": "1234567890...",
+    "y": "9876543210..."
+  }
+}
+```
+
+---
+
+## NPM Package
+
+Install for use in your own applications:
 
 ```bash
 npm install @zkterm/zktoolkit

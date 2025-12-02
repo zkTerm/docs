@@ -7,64 +7,45 @@ description: 'Privacy-first decentralized file storage with ZK proofs'
 
 zkStorage provides encrypted file storage on IPFS with zero-knowledge proofs for password verification. Files are encrypted client-side before upload, ensuring only you can access your data.
 
-<Info>
-  zkStorage uses AES-256-GCM encryption and Groth16 zkSNARK proofs for password knowledge verification.
-</Info>
-
 ## How It Works
 
-<Steps>
-  <Step title="Encrypt">
-    Files are encrypted client-side using AES-256-GCM with a key derived from your password.
-  </Step>
-  <Step title="Generate Proof">
-    A Groth16 zkSNARK proof is generated proving you know the password without revealing it.
-  </Step>
-  <Step title="Upload">
-    Encrypted file is uploaded to IPFS via Pinata with the proof attached.
-  </Step>
-  <Step title="Verify">
-    Download requires verifying the ZK proof to decrypt the file.
-  </Step>
-</Steps>
+1. **Encrypt:** Files are encrypted client-side using AES-256-GCM with a key derived from your password.
+
+2. **Generate Proof:** A Groth16 zkSNARK proof is generated proving you know the password without revealing it.
+
+3. **Upload:** Encrypted file is uploaded to IPFS via Pinata with the proof attached.
+
+4. **Verify:** Download requires verifying the ZK proof to decrypt the file.
 
 ## Terminal Commands
+
+### Show Help
+
+```bash
+zk storage help
+```
+
+Shows all available zkStorage commands and security details.
 
 ### Upload File
 
 ```bash
-zk storage upload <file_path>
+zk storage upload
 ```
 
-Encrypts and uploads a file to IPFS.
+Opens a file picker for encrypted upload. After selecting a file, you'll be prompted for a password.
 
 **Example:**
 ```bash
-> zk storage upload document.pdf
+> zk storage upload
+[File picker opens]
 Password: ********
-Encrypting file...
+Encrypting file (1.2 MB)...
 Generating ZK proof...
 Uploading to IPFS...
-CID: QmXyz123...
-Upload complete!
-```
 
-### Download File
-
-```bash
-zk storage download <cid>
-```
-
-Downloads and decrypts a file from IPFS.
-
-**Example:**
-```bash
-> zk storage download QmXyz123...
-Password: ********
-Verifying ZK proof...
-Downloading from IPFS...
-Decrypting file...
-Saved to: document.pdf
+Success!
+CID: QmXyz123abc456def789
 ```
 
 ### List Files
@@ -73,30 +54,62 @@ Saved to: document.pdf
 zk storage list
 ```
 
-Shows all your uploaded files:
-
-```
-Your Files
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CID                     Name            Size      Date
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-QmXyz123...            document.pdf    1.2 MB    2025-12-01
-QmAbc456...            image.png       500 KB    2025-11-30
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-### Verify File
+Shows all your uploaded files with CID, name, size, and date.
 
 ```bash
-zk storage verify <cid>
+> zk storage list
+
+Your zkStorage Files:
+
+[1] document.pdf [ZK]
+    CID: QmXyz123...
+    Size: 1.2 MB
+    Uploaded: Dec 1, 2025
+
+[2] image.png [ZK]
+    CID: QmAbc456...
+    Size: 500 KB
+    Uploaded: Nov 30, 2025
 ```
 
-Verifies the ZK proof for a file without downloading.
+### Download File
+
+```bash
+zk storage download <file-id>
+```
+
+Downloads and decrypts a file. Requires password for decryption.
+
+**Example:**
+```bash
+> zk storage download QmXyz123
+Password: ********
+Verifying ZK proof...
+Downloading from IPFS...
+Decrypting file...
+Saved to: document.pdf
+```
+
+### Share File
+
+```bash
+zk storage share <file-id>
+```
+
+Creates a shareable link with time-limited access.
+
+### File Info
+
+```bash
+zk storage info <file-id>
+```
+
+Shows detailed information about a specific file.
 
 ### Delete File
 
 ```bash
-zk storage delete <cid>
+zk storage delete <file-id>
 ```
 
 Unpins a file from IPFS (removes from Pinata).
@@ -105,20 +118,17 @@ Unpins a file from IPFS (removes from Pinata).
 
 ### Upload File
 
-<ParamField body="file" type="File" required>
-  File to upload (multipart/form-data)
-</ParamField>
-
-<ParamField body="password" type="string" required>
-  Password for encryption
-</ParamField>
-
 ```bash
-POST /api/zk-storage/upload
+POST /api/storage/upload
 Content-Type: multipart/form-data
 
 file: <binary>
-password: "secure_password"
+encryptedData: <encrypted-base64>
+iv: <iv-base64>
+salt: <salt-base64>
+commitment: <poseidon-hash>
+proof: <groth16-proof-json>
+publicSignals: <proof-signals>
 ```
 
 **Response:**
@@ -127,39 +137,84 @@ password: "secure_password"
 {
   "success": true,
   "cid": "QmXyz123...",
-  "proof": {
-    "pi_a": [...],
-    "pi_b": [...],
-    "pi_c": [...],
-    "protocol": "groth16"
-  },
-  "checksum": "sha256:abc123..."
+  "fileId": "uuid",
+  "originalName": "document.pdf",
+  "originalSize": 1234567,
+  "zkEnabled": true
+}
+```
+
+### List Files
+
+```bash
+GET /api/storage/files
+```
+
+**Response:**
+
+```json
+{
+  "files": [
+    {
+      "id": "uuid",
+      "cid": "QmXyz123...",
+      "originalName": "document.pdf",
+      "originalSize": 1234567,
+      "zkEnabled": true,
+      "createdAt": "2025-12-01T10:00:00Z"
+    }
+  ]
 }
 ```
 
 ### Download File
 
 ```bash
-POST /api/zk-storage/download
+POST /api/storage/download
 Content-Type: application/json
 
 {
-  "cid": "QmXyz123...",
-  "password": "secure_password"
+  "fileId": "uuid",
+  "proof": {...},
+  "publicSignals": [...]
 }
 ```
 
-**Response:** Binary file data
+**Response:** Binary encrypted file data
 
-### Verify Proof
+### Create Share Link
 
 ```bash
-POST /api/zk-storage/verify
+POST /api/storage/share
 Content-Type: application/json
 
 {
-  "cid": "QmXyz123...",
-  "proof": {...}
+  "fileId": "uuid",
+  "expiresIn": 86400
+}
+```
+
+**Response:**
+
+```json
+{
+  "shareUrl": "https://zkterm.io/share/abc123",
+  "expiresAt": "2025-12-02T10:00:00Z"
+}
+```
+
+### Delete File
+
+```bash
+DELETE /api/storage/files/<fileId>
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "File deleted"
 }
 ```
 
@@ -170,7 +225,6 @@ Content-Type: application/json
 zkStorage uses **AES-256-GCM** for file encryption:
 
 ```typescript
-// Key derivation
 const key = await crypto.subtle.deriveKey(
   { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
   passwordKey,
@@ -179,7 +233,6 @@ const key = await crypto.subtle.deriveKey(
   ["encrypt", "decrypt"]
 );
 
-// Encryption
 const encrypted = await crypto.subtle.encrypt(
   { name: "AES-GCM", iv },
   key,
@@ -189,10 +242,9 @@ const encrypted = await crypto.subtle.encrypt(
 
 ### ZK Proof Generation
 
-Groth16 proofs verify password knowledge:
+Groth16 proofs verify password knowledge using Poseidon hash commitments:
 
 ```typescript
-// Circuit: Prove H(password) = public_hash without revealing password
 const { proof, publicSignals } = await snarkjs.groth16.fullProve(
   { password: passwordHash },
   "circuits/password.wasm",
@@ -204,38 +256,31 @@ const { proof, publicSignals } = await snarkjs.groth16.fullProve(
 
 Files are stored on IPFS via Pinata:
 
-- **Gateway**: gateway.pinata.cloud
-- **Persistence**: Files remain pinned indefinitely
-- **Redundancy**: Multiple IPFS nodes
+1. **Gateway:** gateway.pinata.cloud
+2. **Persistence:** Files remain pinned indefinitely
+3. **Redundancy:** Multiple IPFS nodes
 
-### Checksum Validation
+### File Limits
 
-SHA-256 checksums ensure file integrity:
-
-```typescript
-const checksum = await crypto.subtle.digest("SHA-256", fileData);
-```
+| Limit | Value |
+|-------|-------|
+| Max file size | 100 MB |
+| Encryption | AES-256-GCM |
+| Storage | IPFS via Pinata |
 
 ## Security Features
 
-<CardGroup cols={2}>
-  <Card title="Client-Side Encryption" icon="lock">
-    Files encrypted before leaving your device
-  </Card>
-  <Card title="Zero-Knowledge Proofs" icon="shield-check">
-    Password verified without revealing it
-  </Card>
-  <Card title="AES-256-GCM" icon="key">
-    Military-grade authenticated encryption
-  </Card>
-  <Card title="SHA-256 Checksums" icon="fingerprint">
-    Verify file integrity on download
-  </Card>
-</CardGroup>
+1. **Client-Side Encryption:** Files encrypted before leaving your device.
 
-<Warning>
-  If you forget your password, your files cannot be recovered. There is no password reset.
-</Warning>
+2. **Zero-Knowledge Proofs:** Password verified without revealing it.
+
+3. **AES-256-GCM:** Military-grade authenticated encryption.
+
+4. **SHA-256 Checksums:** Verify file integrity on download.
+
+5. **Time-Limited Sharing:** Share links expire automatically.
+
+**Important:** If you forget your password, your files cannot be recovered. There is no password reset.
 
 ## Error Handling
 
@@ -250,7 +295,8 @@ const checksum = await crypto.subtle.digest("SHA-256", fileData);
 
 ```bash
 # 1. Upload a file
-> zk storage upload secret_document.pdf
+> zk storage upload
+[File picker opens - select secret_document.pdf]
 Password: ********
 Confirm password: ********
 Encrypting file (1.2 MB)...
@@ -259,19 +305,19 @@ Uploading to IPFS...
 
 Success!
 CID: QmXyz123abc456def789
-Checksum: sha256:abc123...
 
 # 2. List your files
 > zk storage list
-1. QmXyz123... - secret_document.pdf (1.2 MB)
 
-# 3. Verify the proof
-> zk storage verify QmXyz123...
-Verifying Groth16 proof...
-Proof valid!
+Your zkStorage Files:
 
-# 4. Download later
-> zk storage download QmXyz123...
+[1] secret_document.pdf [ZK]
+    CID: QmXyz123...
+    Size: 1.2 MB
+    Uploaded: Dec 1, 2025
+
+# 3. Download later
+> zk storage download QmXyz123
 Password: ********
 Verifying proof...
 Downloading from IPFS...
@@ -279,20 +325,3 @@ Decrypting...
 Verifying checksum...
 Saved to: secret_document.pdf
 ```
-
-## Use Cases
-
-<CardGroup cols={2}>
-  <Card title="Sensitive Documents" icon="file-shield">
-    Store legal, medical, or financial documents securely
-  </Card>
-  <Card title="Backup Keys" icon="key">
-    Encrypted backup of private keys and seeds
-  </Card>
-  <Card title="Private Media" icon="images">
-    Store personal photos and videos privately
-  </Card>
-  <Card title="Team Secrets" icon="users">
-    Share encrypted files with team members
-  </Card>
-</CardGroup>
