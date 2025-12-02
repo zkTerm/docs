@@ -1,4 +1,3 @@
-
 ---
 title: 'Troubleshooting'
 description: 'Common issues and solutions'
@@ -6,272 +5,257 @@ description: 'Common issues and solutions'
 
 ## zkID Issues
 
-### "Failed to create zkID"
+**1. "Failed to create zkID"**
 
-**Cause**: Database connection issue or username already exists.
+Cause: Database connection issue or username already exists.
 
-**Solution**:
+Solutions:
 1. Check if username is unique
-2. Verify database connection
+2. Verify you're connected to the internet
 3. Try again in a few seconds
 
-### "On-chain verification failed"
+**2. "On-chain verification failed"**
 
-**Cause**: Insufficient SOL/ETH balance or network congestion.
+Cause: Insufficient SOL balance or network congestion.
 
-**Solution**:
-1. Check wallet balance (need ~0.01 SOL for gas)
+Solutions:
+1. Check wallet balance - need ~0.01 SOL for gas
 2. Wait for network congestion to clear
-3. Try a different blockchain: `zkid verify --blockchain solana`
+3. Try with `zk id login --blockchain solana`
 
-### "Proof generation timeout"
+**3. "Proof generation timeout"**
 
-**Cause**: Heavy computational load on server.
+Cause: Heavy computational load on server.
 
-**Solution**:
-1. Reduce input complexity
+Solutions:
+1. Wait a few seconds and retry
 2. Try during off-peak hours
-3. Use local proof generation (advanced)
+3. Check your internet connection
+
+**4. "User has no identity public key"**
+
+Cause: Account created before cryptographic proofs were enabled.
+
+Solution: Re-register with `zk id register` to enable cryptographic proofs.
 
 ## zkStorage Issues
 
-### "File upload failed"
+**5. "File upload failed"**
 
-**Possible causes**:
-- File too large (>100MB)
+Possible causes:
+- File too large (limit: 100MB)
 - IPFS gateway timeout
-- Weak password
+- Not logged in
 
-**Solutions**:
-```bash
-# Check file size
-ls -lh yourfile.pdf
+Solutions:
+1. Check file size - must be under 100MB
+2. Make sure you're logged in with `zk id login`
+3. Try again - automatic retry is built in
 
-# Use smaller file
-zk storage upload small-file.pdf
+**6. "Decryption failed"**
 
-# Use stronger password (12+ chars)
-```
+Cause: Wrong password or corrupted file.
 
-### "Decryption failed"
-
-**Cause**: Wrong password or corrupted file.
-
-**Solution**:
+Solutions:
 1. Double-check password (case-sensitive)
-2. Verify CID is correct
+2. Verify the file ID is correct
 3. Check file integrity with checksum
 
-### "IPFS gateway timeout"
+**7. "IPFS gateway timeout"**
 
-**Cause**: IPFS network congestion.
+Cause: IPFS network congestion or file not yet propagated.
 
-**Solution**:
-```bash
-# Try alternative gateway
-export IPFS_GATEWAY=https://cloudflare-ipfs.com
-zk storage download QmXyz...
-
-# Or wait and retry
-```
+Solutions:
+1. Wait 30 seconds and retry
+2. System automatically tries multiple gateways (Pinata, Cloudflare, ipfs.io)
+3. Check if file exists with `zk storage info <file-id>`
 
 ## zkCompression Issues
 
-### "Compression failed"
+**8. "Compression failed"**
 
-**Cause**: Insufficient SOL balance or invalid mint.
+Cause: Insufficient SOL balance or RPC issues.
 
-**Solution**:
-```bash
-# Check SOL balance
-zk tokens
+Solutions:
+1. Check SOL balance with `zk tokens`
+2. Need at least 0.005 SOL for compression fees
+3. Wait and retry if RPC is congested
 
-# Verify mint address
-compress <correct-mint-address> 100
+**9. "Balance not updating after compression"**
 
-# Ensure enough SOL (need ~0.005 SOL)
-```
+Cause: Light Protocol RPC indexer sync delay.
 
-### "Balance not updating"
+Solutions:
+1. Wait 30-60 seconds for indexer to sync
+2. System automatically polls for updates
+3. Run `zk tokens` to refresh balance
 
-**Cause**: Transaction not confirmed yet.
+**10. "Decompression stuck"**
 
-**Solution**:
-1. Wait 30-60 seconds for confirmation
+Cause: Light Protocol RPC timeout or indexer delay.
+
+Solutions:
+1. Wait 2-5 minutes for confirmation
 2. Check transaction on Solana Explorer
-3. Run `zk tokens` again
+3. System uses automatic retry polling
 
-### "Decompression stuck"
+## Starknet Issues
 
-**Cause**: Light Protocol RPC timeout.
+**11. "This proof has already been submitted to the blockchain"**
 
-**Solution**:
-```bash
-# Check transaction status
-# Wait 2-5 minutes
-# Try again if still stuck
-decompress <mint> <amount>
-```
+Cause: Attempting to submit duplicate proof.
 
-## zkToolkit Issues
+Solution: Each proof can only be submitted once. Check existing proofs with `zk id status`.
 
-### "Hash mismatch"
+**12. "Server wallet has insufficient STRK"**
 
-**Cause**: Different hash algorithm or encoding.
+Cause: Server wallet needs STRK for gas sponsorship.
 
-**Solution**:
-```bash
-# Specify algorithm explicitly
-zk toolkit hash poseidon "data"
+Solution: Contact zkTerm team - this is a server-side issue that needs admin attention.
 
-# Verify input encoding (UTF-8)
-```
+**13. "Invalid proof hash format"**
 
-### "Proof verification failed"
+Cause: Proof data is malformed.
 
-**Cause**: Invalid proof or public signals.
+Solutions:
+1. Regenerate the proof with `zk id prove`
+2. Make sure you're using the latest version
 
-**Solution**:
-1. Ensure proof format matches circuit
-2. Verify public signals order
-3. Check verification key version
+**14. "Starknet not configured"**
 
-### "Field arithmetic overflow"
+Cause: Missing environment variables for Starknet.
 
-**Cause**: Number exceeds BN254 field prime.
+Solution: This is a server configuration issue. Contact support.
 
-**Solution**:
-```bash
-# Use smaller numbers
-zk field add 5 7
+**15. "Transaction failed with status: REVERTED"**
 
-# Or use modular arithmetic
-```
+Cause: Smart contract rejected the transaction.
+
+Solutions:
+1. Check if proof already exists on-chain
+2. Verify zkID format is correct
+3. Try again with fresh proof
+
+## HoudiniSwap Issues
+
+**16. "HoudiniSwap API error"**
+
+Cause: External API rate limit or service issue.
+
+Solutions:
+1. Wait a few minutes and retry
+2. Check swap status with `zk swap --houdini status <id>`
+3. View history with `zk swap --houdini history`
+
+**17. "Quote expired"**
+
+Cause: Swap quotes are time-limited.
+
+Solution: Get a new quote with `zk swap --houdini quote <from> <to> <amount>`
 
 ## API Integration Issues
 
-### "CORS error"
+**18. "401 Unauthorized"**
 
-**Cause**: Frontend making requests without proper credentials.
+Cause: Not logged in or session expired.
 
-**Solution**:
+Solutions:
+1. Login first via terminal or API
+2. Include credentials in fetch requests:
+
 ```typescript
-fetch('https://zkterm.io/api/endpoint', {
-  credentials: 'include', // Add this!
+fetch('/api/auth/me', {
+  credentials: 'include'
+});
+```
+
+**19. "CORS error"**
+
+Cause: Frontend making requests without proper credentials.
+
+Solution:
+```typescript
+fetch('/api/endpoint', {
+  credentials: 'include',
   headers: { 'Content-Type': 'application/json' }
 });
 ```
 
-### "401 Unauthorized"
+**20. "Rate limit exceeded (429)"**
 
-**Cause**: Not logged in or session expired.
+Cause: Too many requests in short time.
 
-**Solution**:
-```typescript
-// Login first
-await fetch('https://zkterm.io/api/login', {
-  method: 'POST',
-  credentials: 'include',
-  body: JSON.stringify({ username, password })
-});
-
-// Then make authenticated request
-```
-
-### "Rate limit exceeded"
-
-**Cause**: Too many requests.
-
-**Solution**:
+Solutions:
 1. Implement exponential backoff
 2. Cache responses when possible
-3. Batch requests
-
-## Network Issues
-
-### Solana
-
-**Problem**: "Transaction simulation failed"
-
-**Solutions**:
-- Increase compute budget
-- Wait for lower network congestion
-- Use priority fees
-
-### Starknet
-
-**Problem**: "Signature verification failed"
-
-**Solutions**:
-- Check account deployment status
-- Verify signature format
-- Ensure correct network (mainnet/sepolia)
+3. Batch requests where possible
 
 ## Terminal Issues
 
-### "Command not found"
+**21. "Command not found"**
 
-**Cause**: Typo or unavailable command.
+Cause: Typo or command doesn't exist.
 
-**Solution**:
-```bash
-# List all commands
-help
+Solutions:
+1. Type `zk help` to see all commands
+2. Check spelling carefully
+3. Commands use format: `zk <category> <action>`
 
-# Check spelling
-zkid create  # not "zkid creat"
-```
+**22. "Terminal not responding"**
 
-### "Terminal not responding"
+Cause: Browser memory issue or connection lost.
 
-**Cause**: Browser memory issue.
-
-**Solution**:
+Solutions:
 1. Refresh page (Cmd/Ctrl + R)
 2. Clear browser cache
-3. Use incognito mode
-
-## Getting Help
-
-If your issue isn't listed:
-
-1. **Check logs**: Open browser DevTools → Console
-2. **Ask on Twitter**: [@zkterm](https://x.com/zkterm)
-3. **File bug**: [github.com/zkterm/issues](https://github.com/zkterm/issues)
+3. Try incognito/private mode
 
 ## Common Error Codes
 
 | Code | Meaning | Solution |
 |------|---------|----------|
 | 400 | Bad Request | Check request parameters |
-| 401 | Unauthorized | Login first |
+| 401 | Unauthorized | Login first with `zk id login` |
 | 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Verify CID/endpoint exists |
+| 404 | Not Found | Verify file/endpoint exists |
 | 429 | Rate Limited | Wait and retry |
 | 500 | Server Error | Report to team |
 
+## API Endpoints Reference
+
+| Endpoint | Purpose |
+|----------|---------|
+| `/api/auth/*` | zkID authentication |
+| `/api/light/*` | Compression operations |
+| `/api/storage/*` | File storage |
+| `/api/zk-toolkit/*` | Cryptographic primitives |
+| `/api/starknet/*` | Starknet operations |
+| `/api/bridge/*` | Cross-chain bridge |
+
 ## Debugging Tips
 
-<AccordionGroup>
-  <Accordion title="Enable Verbose Logging">
-    ```bash
-    export DEBUG=true
-    zk storage upload file.pdf
-    ```
-  </Accordion>
-  <Accordion title="Check Transaction Details">
-    ```bash
-    # Solana
-    solana confirm <tx-hash> -v
-    
-    # Starknet
-    starknet tx_status --hash <tx-hash>
-    ```
-  </Accordion>
-  <Accordion title="Verify Smart Contract State">
-    ```bash
-    # Check if zkID exists on-chain
-    zkid status
-    ```
-  </Accordion>
-</AccordionGroup>
+**Check Browser Console**
+
+Open DevTools (F12) → Console tab to see error details.
+
+**Verify Transaction Status**
+
+For Solana transactions, check [Solana Explorer](https://explorer.solana.com).
+For Starknet transactions, check [Starkscan](https://starkscan.co).
+
+**Check zkID Status**
+
+```bash
+zk id status
+```
+
+Shows verification status on both Solana and Starknet.
+
+## Getting Help
+
+If your issue isn't listed:
+
+1. Check browser DevTools console for error details
+2. Ask on Twitter: [@zkterm](https://x.com/zkterm)
+3. Report bugs: [github.com/zkterm](https://github.com/zkterm)
+4. Use `zk bug report` in terminal to submit a report

@@ -1,27 +1,35 @@
-
 ---
 title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
+## December 2, 2024
+
+**Documentation**
+- Added Integrations menu (Starknet, Pinata, Crust Network, x402)
+- Updated x402 internal payment system documentation
+- Simplified Integration Architecture diagram
+- Rewrote FAQ with core zkTerm questions
+- Synced troubleshooting with real error messages
+
+---
+
 ## v2.0.0 - December 2024
 
-### 🚀 Major Features
+**Major Features**
+- zkCompression: Light Protocol integration for 1000x cost reduction on Solana
+- Private Swap: HoudiniSwap integration for cross-chain privacy
+- Rewards System: Trade-to-earn with on-chain verification
+- Starknet Multi-Chain Wallet: Create and manage Starknet wallets
 
-- **zkCompression**: Integrated Light Protocol for 1000x cost reduction
-- **Private Swap**: HoudiniSwap integration for cross-chain privacy
-- **zkML**: EZKL integration for machine learning proofs
-- **Rewards System**: Trade-to-earn with blockchain verification
-
-### ✨ Enhancements
-
-- Improved terminal performance (50% faster rendering)
-- Enhanced IPFS reliability with retry logic
-- Better error messages and user feedback
+**Enhancements**
+- Improved terminal performance with XTerm.js optimizations
+- Enhanced IPFS reliability with automatic retry logic
+- Better error messages synced with troubleshooting docs
 - Mobile-responsive terminal UI
+- Dual-mode zkAI assistant
 
-### 🐛 Bug Fixes
-
+**Bug Fixes**
 - Fixed zkStorage download timeout issues
 - Resolved Starknet proof submission failures
 - Corrected token balance display for compressed tokens
@@ -31,21 +39,17 @@ description: 'Latest updates and changes to zkTerm'
 
 ## v1.5.0 - November 2024
 
-### 🆕 New Features
+**New Features**
+- zkAttest: Privacy-preserving data attestation via zkPass zkTLS
+- zkExplorer: Transaction history and proof explorer
+- Bug Report System: In-terminal bug reporting with image uploads
 
-- **zkAuth**: Passwordless social login with STARK proofs
-- **3P-TLS**: zkAttest integration for web attestations
-- **Explorer**: Transaction history and proof explorer
-
-### 🔧 Improvements
-
-- Faster proof generation (30% improvement)
-- Enhanced Poseidon hash performance
+**Improvements**
+- Faster Poseidon hash performance
 - Better zkID verification UX
-- Improved documentation
+- Enhanced documentation structure
 
-### 🐛 Bug Fixes
-
+**Bug Fixes**
 - Fixed file upload progress tracking
 - Resolved session timeout issues
 - Corrected merkle tree verification
@@ -54,118 +58,71 @@ description: 'Latest updates and changes to zkTerm'
 
 ## v1.0.0 - October 2024
 
-### 🎉 Initial Release
+**Initial Release**
+- zkID: Privacy-preserving universal identity (`did:zk:xxx`)
+- zkStorage: Encrypted file storage on IPFS via Pinata
+- zkToolkit: Complete cryptographic primitives library (10 modules)
+- Terminal: Interactive ZK-powered CLI
 
-- **zkID**: Privacy-preserving universal identity
-- **zkStorage**: Encrypted file storage on IPFS
-- **zkToolkit**: Complete cryptographic primitives library
-- **Terminal**: Interactive ZK-powered CLI
-
-### Core Features
-
-- Ed25519 digital signatures
-- Groth16 proof generation
-- AES-256-GCM encryption
-- Solana + Starknet integration
+**Core Features**
+- Ed25519 digital signatures with client-side keypair generation
+- Groth16 zkSNARK proofs for password verification
+- AES-256-GCM encryption with PBKDF2 key derivation
+- Solana Mainnet + Starknet Sepolia integration
 
 ---
 
-## Upcoming
+## Roadmap
 
-### v2.1.0 (Q1 2025)
+**v2.1.0 (Q1 2025)**
+- Zcash integration
+- Hardware wallet support
+- Batch proof generation
+- Advanced merkle tree operations
 
-- [ ] Zcash mainnet support
-- [ ] Hardware wallet integration
-- [ ] Batch proof generation
-- [ ] Advanced merkle tree operations
-
-### v3.0.0 (Q2 2025)
-
-- [ ] Mobile app (iOS/Android)
-- [ ] Post-quantum cryptography
-- [ ] ZK-rollup integration
-- [ ] Cross-chain bridges
+**v3.0.0 (Q2 2025)**
+- Mobile app (iOS/Android)
+- Post-quantum cryptography research
+- Additional cross-chain bridges
 
 ---
 
-## Migration Guides
+## Migration Guide
 
-### v1.x → v2.0
+**v1.x to v2.0**
 
-No breaking changes! v2.0 is fully backward compatible.
+No breaking changes. v2.0 is fully backward compatible.
 
-**New features to try**:
+New features to try:
 ```bash
-# Compress tokens
+# Compress tokens (Light Protocol)
 compress <mint> <amount>
 
-# Private swap
-zk swap USDC SOL 100
+# Private swap (HoudiniSwap)
+zk swap --houdini quote USDC SOL 100
 
 # Check rewards
-zk rewards
+zk rewards status
+
+# View all tokens (regular + compressed)
+zk tokens
 ```
 
 ---
 
 ## Deprecations
 
-### Deprecated in v2.0
+**Deprecated in v2.0**
+- Old zkStorage API endpoints (use `/api/storage/*`)
+- Legacy proof format (migrated automatically)
 
-- ❌ Old zkStorage API endpoints (use `/api/storage/*`)
-- ❌ Legacy proof format (migrated to v2 automatically)
-
-### Removed in v2.0
-
+**Removed in v2.0**
 - None
-
----
-
-## Security Updates
-
-### CVE-2024-001 (Fixed in v1.5.1)
-
-**Severity**: Low  
-**Impact**: IPFS gateway timeout could cause UI freeze  
-**Fix**: Added timeout handling and retry logic
-
-### CVE-2024-002 (Fixed in v1.4.3)
-
-**Severity**: Medium  
-**Impact**: Proof verification could accept invalid public signals  
-**Fix**: Enhanced validation in proof verification
-
----
-
-## Performance Benchmarks
-
-| Operation | v1.0 | v2.0 | Improvement |
-|-----------|------|------|-------------|
-| Proof Generation | 12s | 8s | **33% faster** |
-| File Upload | 5s | 3s | **40% faster** |
-| Terminal Load | 2s | 1s | **50% faster** |
-| Hash (Poseidon) | 100ms | 50ms | **50% faster** |
-
----
-
-## Contributors
-
-Special thanks to our contributors:
-
-- @alice - zkCompression implementation
-- @bob - Enhanced error handling
-- @charlie - Documentation improvements
-- @dave - Bug fixes and testing
 
 ---
 
 ## Stay Updated
 
-<CardGroup cols={2}>
-  <Card title="Twitter" icon="x-twitter" href="https://x.com/zkterm">
-    Follow for updates
-  </Card>
-  <Card title="GitHub" icon="github" href="https://github.com/zkterm">
-    View source code
-  </Card>
-</CardGroup>
+Follow [@zkterm](https://x.com/zkterm) on X for the latest updates.
+
+View source code at [github.com/zkterm](https://github.com/zkterm).
