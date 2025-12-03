@@ -92,6 +92,7 @@
     {
       "group": "Resources",
       "pages": [
+        "resources/roadmap",
         "resources/faq",
         "resources/troubleshooting",
         "resources/security",
