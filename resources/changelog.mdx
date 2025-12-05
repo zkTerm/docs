@@ -3,6 +3,30 @@ title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
+## v1.8.0
+**December 5, 2025**
+
+**Features**
+- zkAuth passwordless authentication - Web3Auth social login (Google/X) with SAPPHIRE_MAINNET production network
+- 2-layer security architecture: Layer 1 (Web3Auth distributed PK) + Layer 2 (Shamir 2-of-3 Master Key split across Zcash, Starknet, Solana)
+- @zkterm/zkauth package - open source multi-chain authentication module with TypeScript support
+- zkAuth page at /zkauth with cyberpunk terminal UI and real-time status indicators
+- Open source release: zkAuth repo published at https://github.com/zkTerm/zkAuth.git
+
+**Improvements**
+- All error handlers replaced with inline alerts (no toast/popup notifications)
+- Browser polyfills for Node.js modules compatibility (Buffer, process, setImmediate/clearImmediate timer shims)
+- Loading states and clear error messages for better user experience
+- Web3Auth v10 API migration - uses init() instead of deprecated initModal()
+- privateKeyProvider with chainConfig per Web3Auth v10 requirements
+
+**Security**
+- AES-256-GCM encryption with authentication tags for Master Key shards
+- Fully decentralized key storage - no backend stores private keys
+- Graceful fallback to demo mode if Web3Auth initialization fails
+
+---
+
 ## v1.7.9
 **December 4, 2025**
 
