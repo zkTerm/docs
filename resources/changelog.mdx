@@ -3,6 +3,29 @@ title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
+## v1.8.1
+**December 6, 2025**
+
+**Features**
+- Cancel button on registration/login modals - allows logout and return to initial state
+- Real-time inline validation for Secret Phrase fields - shows character count and mismatch errors while typing
+
+**Improvements**
+- Frosted glass UI design - consistent blur + opacity effects across all authentication modals and info boxes
+- Security Architecture box with rgba(0,0,0,0.3) blur background for visual consistency
+- Modal backgrounds updated to frosted glass effect (blur 12px + 0.3 opacity)
+- Sharp input corners (no rounded borders) for terminal aesthetic
+- Grey placeholder text (#666) for better contrast and readability
+- Removed focus ring outlines from all input fields for cleaner look
+- Unified Secret Phrase handling - tries login first, registers only if user not found
+
+**Bug Fixes**
+- Fixed isLoggedIn state - now only true after master key distributed to all 3 chains
+- Fixed authentication flow to ensure proper login vs registration detection
+- Fixed combineShares function signature LSP error in zkAuthRoutes.ts
+
+---
+
 ## v1.8.0
 **December 5, 2025**
 
