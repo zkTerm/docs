@@ -3,6 +3,68 @@ title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
+## v1.8.3
+**December 7, 2025**
+
+**Features**
+- Real Starknet on-chain storage for zkAuth shares via ZkIDProofRegistry contract
+- Zcash database-backed storage with SHA-256 hash verification (survives restarts)
+- Multi-chain zkAuth: Solana (on-chain), Starknet (on-chain), Zcash (database-backed)
+- payloadType tracking: 'full' for Solana (entire encrypted data in memo), 'hash' for others
+- payloadHash field for cross-chain verification and audit
+- dbPersisted flag in registration response for accurate status reporting
+
+**Improvements**
+- storeZkAuthShareOnStarknet() - deterministic proofId generation from userId+shareIndex
+- storeZkAuthShareOnZcash() - database-backed commitment with future t-address memo support
+- Registration aborts immediately if any share fails to persist (no false success)
+- All 3 shares must be persisted to database before success response
+- Graceful fallback to mock transactions only for on-chain step (database always required)
+
+**Technical**
+- server/starknetProofSubmission.ts extended with zkAuth share storage functions
+- server/zcashProof.ts created for Zcash commitment ID generation
+- zkAuthShares schema updated with payloadType and payloadHash columns
+- Starknet uses existing ZkIDProofRegistry contract (server pays gas fees)
+- Atomic database transaction for all 3 shares (all-or-nothing persistence)
+- Two-phase registration: prepare shares + on-chain, then commit atomically to DB
+
+**Storage Modes**
+- Solana: On-chain (Memo Program) + database backup
+- Starknet: On-chain (ZkIDProofRegistry contract) + database backup
+- Zcash: Database-backed (PostgreSQL), full on-chain via lightwalletd planned
+
+**Roadmap**
+- Zcash full on-chain storage via lightwalletd + t-address OP_RETURN memo
+- Background reconciliation jobs for on-chain verification status
+
+---
+
+## v1.8.2
+**December 7, 2025**
+
+**Features**
+- Real Solana on-chain storage for zkAuth shares via Memo Program - no more mock transactions
+- Database persistence for zkAuth shares - fast retrieval with on-chain verification backup
+- zkAuthShares table with fields: userId, shareIndex, chain, txHash, encryptedData, iv, tag, status, verifiedOnChain
+
+**Improvements**
+- Registration flow now stores encrypted shares both in database (fast lookup) and on-chain (Solana)
+- Login flow fetches shares from database with on-chain transaction hashes for verification
+- Transaction signatures returned in API responses for Solana share storage
+- Fallback to mock storage if Solana on-chain storage fails (graceful degradation)
+
+**Technical**
+- Drizzle ORM schema updated with zkAuthShares table and insert types
+- zkAuthRoutes.ts refactored to use database + blockchain hybrid storage
+- Integration with existing solanaProof.ts storeZkAuthShareOnChain function
+
+**Roadmap**
+- Starknet on-chain storage implementation (currently mock)
+- Zcash on-chain storage implementation (currently mock)
+
+---
+
 ## v1.8.1
 **December 6, 2025**
 
