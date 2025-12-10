@@ -4,24 +4,42 @@ description: 'Latest updates and changes to zkTerm'
 ---
 
 ## v1.8.4
-**December 9, 2025**
+**December 10, 2025**
 
 **Features**
-- FULLY DECENTRALIZED zkAuth - 100% on-chain storage with NO PostgreSQL dependency
+- FULLY DECENTRALIZED zkAuth - 100% on-chain storage with NO PostgreSQL dependency and NO SERVER SECRETS
 - Registration stores ALL 3 encrypted shares on Solana (for retrieval) plus chain anchors on Zcash/Starknet
 - Login queries Starknet for user existence, then searches Solana for shares with paginated search
 - Paginated Solana transaction search - scans up to 10,000 transactions (20 pages) to find older registrations
 - Early exit optimization - stops searching once 3 shares are found
+- **ON-CHAIN 2FA** - Optional TOTP-based two-factor authentication with 100% on-chain storage (NO PostgreSQL)
+- Session storage migrated from PostgreSQL (connect-pg-simple) to memorystore (in-memory)
+
+**2FA On-Chain Storage**
+- TOTP secrets encrypted with AES-256-GCM before Solana storage via Memo Program
+- Backup codes hashed with SHA-256 before on-chain storage (8 high-entropy codes per user)
+- Uses derive2FALookupKey(email, googleUserId) for deterministic on-chain search
+- Tombstone records for "deletion" (blockchain immutability workaround)
+- Backup code consumption updates on-chain record with remaining codes
+
+**ZERO SERVER SECRETS - Fully Decentralized Lookup Keys**
+- Lookup keys derived purely from Google OAuth credentials (email + googleUserId)
+- googleUserId from Google is high-entropy (128-bit random) - prevents enumeration attacks
+- NO ZKAUTH_LOOKUP_SALT environment variable needed anymore
+- Deterministic across server restarts - returning users always find their shares
+- HKDF-like derivation using googleUserId as the keying material
 
 **Security**
-- HMAC-based deterministic lookup keys with server salt prevents enumeration attacks
-- Production safety: Server crashes immediately if ZKAUTH_LOOKUP_SALT env var is missing (prevents catastrophic key rotation)
-- Development mode uses random session salt with clear warnings about data not persisting across restarts
+- Lookup keys use googleUserId as HMAC key - only available after OAuth consent
+- 2FA secrets never stored in plaintext - AES-256-GCM encryption with authentication tags
+- Backup codes never stored in plaintext - SHA-256 hashed before on-chain storage
 
 **Technical**
-- packages/zkauth/src/lookup.ts - deterministic key derivation with HMAC + server salt
-- server/solanaProof.ts - storeZkAuthShareDecentralized() and searchZkAuthSharesByLookupKey() with pagination
+- packages/zkauth/src/lookup.ts - REFACTORED to derive keys from Google OAuth only (v3 decentralized)
+- server/solanaProof.ts - storeZkAuthShareDecentralized(), searchZkAuthSharesByLookupKey(), store2FADataOnChain(), search2FADataByLookupKey(), delete2FADataOnChain()
 - server/zkAuthRoutes.ts - fully refactored registration/login without database dependencies
+- server/twoFactorRoutes.ts - completely rewritten to use on-chain storage and decentralized lookup keys
+- ZkAuthSession now stores email + googleUserId for 2FA lookup key derivation
 - Shamir 2-of-3 reconstruction - only need 2 shares to reconstruct master key
 
 **User Flow (unchanged)**
@@ -29,7 +47,8 @@ description: 'Latest updates and changes to zkTerm'
 - Returning users: Login with Google ONLY (no phrase needed)
 
 **Production Requirements**
-- Set ZKAUTH_LOOKUP_SALT environment variable (64-character hex string) before deploying
+- Set TOTP_ENCRYPTION_KEY or SESSION_SECRET for 2FA secret encryption
+- NO ZKAUTH_LOOKUP_SALT needed - system is 100% decentralized
 
 ---
 
