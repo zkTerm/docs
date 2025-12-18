@@ -3,44 +3,50 @@ title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
-## v1.8.5
-**December 11, 2025**
+## v1.8.6
+**December 12-17, 2025**
 
-**Features**
-- **Email OTP 2FA** - Alternative two-factor authentication method using email-based one-time passwords
-- Multi-method 2FA support - Users can now choose between TOTP (authenticator app) or Email OTP
-- Security email validation - 2FA email must differ from Google login email (validated frontend + backend)
-- Action-based OTP tokens - Separate tokens for 'verify' vs 'disable' actions prevent replay attacks
+### December 17, 2025
+- **Profile ID card**: avatar, nama, timestamps (verifiedAt, lastSignIn)
+- **RPC Settings**: custom headers, API keys, test connection + retry
+- **Chain verification**: explorer links (Blockchair untuk Zcash)
+- **Settings modal**: scrollable, better layout
+- **2FA status**: on-chain lookup sync
 
-**Email OTP Implementation**
-- 8 backend endpoints: /status, /setup, /verify-setup, /verify-setup-manual, /send-otp, /verify-otp, /disable, /update
-- SHA-256 hashed OTP codes with 10-minute expiry
-- Decentralized on-chain storage via Solana Memo Program (same architecture as TOTP)
-- State merging preserves existing TOTP data when adding Email OTP
-- Session-based stateless verification with no PostgreSQL dependency
+### December 16, 2025
+- **Auth package**: move utilities ke `packages/zkauth`
+- **Hybrid auth flow**: local storage + session tokens
+- **2FA client-side**: hooks, verification module, status indicators
+- **Chain verification endpoint**: multi-chain proof verification
+- **Decentralized user sessions**: signed tokens
 
-**Dashboard UI Improvements**
-- Profile ID card with avatar image display
-- Transparent card backgrounds showing VFX effects through
-- Reusable DashboardCard component for consistent styling
-- Improved spacing between header and explorer content
+### December 15, 2025
+- **Dashboard package**: move components ke `packages/dashboard`
+- **Dashboard layout**: multi-column, responsive, remove placeholder data
+- **Tab rename**: EXPLORER → DASHBOARD
+- **Identity proof & 2FA status display**
 
-**Session Management**
-- Migrated to cookie-based storage with memorystore
-- Removed PostgreSQL dependency for session persistence
-- Improved session status display on login page
+### December 14, 2025
+*(No commits - rest day)*
 
-**Security Architecture**
-- Updated login page with Layer 1/Layer 2 security details
-- Clear distinction: TOTP/Email OTP for daily 2FA, Hardware Wallet/Social Recovery for account recovery
-- Enhanced security email storage with on-chain encryption
+### December 13, 2025
+- **Email OTP fixes**: conflicting success messages, verified domain sender
+- **Email service**: fallback direct API key, test endpoint, detailed logging
+- **Session handling**: existing user sessions on reload
+- **Login**: non-blocking proof generation
 
-**Technical**
-- server/twoFactorRoutes.ts - Extended with 8 Email OTP endpoints
-- server/emailService.ts - New Resend API integration for OTP delivery
-- client/src/components/TwoFactorSetup.tsx - Tabbed UI for TOTP vs Email OTP selection
-- client/src/components/DashboardCard.tsx - Reusable transparent card component
-- client/src/components/AuthenticatedDashboard.tsx - Profile card with avatar
+### December 12, 2025
+- **zkSNARK proof integration**: circuit untuk prove private key ownership
+- **Starknet**: zk commitment storage & retrieval
+- **Login screen UI**: decentralized auth info, card styling
+- **Icon colors consistency**
+
+**Technical Summary**
+- packages/dashboard/src/* - ExplorerTabContent, AuthenticatedDashboard, SettingsModal
+- packages/zkauth/src/client/* - authUtils.ts, useZkAuthFlow.ts
+- server/chainVerification.ts - Multi-chain proof verification
+- server/emailService.ts - Resend API integration
+- circuits/zkauth_identity.circom - zkSNARK proof circuit
 
 **Production Requirements**
 - RESEND_API_KEY for Email OTP functionality
