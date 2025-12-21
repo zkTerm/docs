@@ -3,6 +3,52 @@ title: 'Changelog'
 description: 'Latest updates and changes to zkTerm'
 ---
 
+## v1.8.7
+**December 18-21, 2025**
+
+### December 21, 2025
+- **Real-time wallet balances**: SOL, STRK, ZEC balance display in dashboard
+- **BigInt precision**: Fixed precision handling for 18-decimal tokens (STRK)
+- **Zcash balance API**: `/api/zcash/balance` endpoint using UTXO summation
+- **useWalletBalances hook**: Unified balance fetching for all chains
+- **Wallet card UI improvements**: Better content visibility and layout
+
+### December 20, 2025
+- **Auto-logout system**: Global fetch interceptor with same-origin URL parsing
+- **Session management**: Automatic logout on 401 responses from protected endpoints
+- **Skip patterns**: Login/register/OTP endpoints excluded from auto-logout
+- **Published app update**
+
+### December 19, 2025
+- **Zcash shielded addresses**: Server API for zs1... address derivation
+- **webzjs integration**: Client-side derivation of Zcash shielded keys
+- **Wallet creation updates**: Include shielded addresses in wallet creation flow
+- **Published app update**
+
+### December 18, 2025
+- **Client-side multi-chain wallet creation**: Browser-compatible wallet generation
+- **Solana wallets**: SLIP-0010 Ed25519 derivation at path m/44'/501'/0'/0'
+- **Starknet wallets**: HKDF derivation with starknet.js ec.starkCurve
+- **Zcash transparent**: secp256k1 BIP44 at path m/44'/133'/0'/0/0
+- **Zcash shielded server API**: @airgap/sapling-wasm for zs1... addresses
+- **Web Crypto encryption**: AES-GCM seed storage with PBKDF2 key derivation
+- **Wallet management modal**: View and manage wallet details and settings
+- **WASM support**: Shielded address generation in browser
+
+**Technical Summary**
+- packages/dashboard/src/useWalletBalances.ts - Real-time balance hook
+- packages/dashboard/src/authFetch.ts - Auto-logout fetch interceptor
+- packages/dashboard/src/AuthProvider.tsx - Session management
+- packages/dashboard/src/CreateWalletModal.tsx - Multi-chain wallet creation
+- packages/zkwallet/src/zcash/shielded.ts - Zcash shielded address derivation
+- server/routes.ts - /api/zcash/balance endpoint
+- server/zcashRpcClient.ts - UTXO queries
+
+**Production Requirements**
+- GETBLOCK_API_KEY for Zcash RPC access
+
+---
+
 ## v1.8.6
 **December 12-17, 2025**
 
